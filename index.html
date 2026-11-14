@@ -1,0 +1,1929 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+  <meta name="theme-color" content="#9a3412" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="Bhakti Status" />
+  <link id="pwaManifestLink" rel="manifest" href="#" />
+  <title>Bhakti Status Maker — Daily Devotional WhatsApp Status</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800&family=Yatra+One&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #fffbf5;
+      color: #1c1917;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .font-devotional {
+      font-family: 'Yatra One', Georgia, serif;
+    }
+    /* Smooth subtle pulse for primary CTA */
+    @keyframes gentleGlow {
+      0%, 100% { box-shadow: 0 4px 14px rgba(22, 163, 74, 0.35); }
+      50% { box-shadow: 0 6px 20px rgba(22, 163, 74, 0.55); }
+    }
+    .btn-whatsapp {
+      animation: gentleGlow 3s infinite ease-in-out;
+    }
+    /* Hide horizontal scrollbar on category pills while keeping swipeability */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
+</head>
+<body class="min-h-screen pb-16 selection:bg-orange-200">
+
+  <!-- Top Devotional Header -->
+  <header class="bg-gradient-to-r from-orange-700 via-red-800 to-amber-700 text-white shadow-lg sticky top-0 z-30">
+    <div class="max-w-4xl mx-auto px-4 py-3.5 flex items-center justify-between gap-2">
+      <div class="flex items-center gap-3">
+        <div class="w-11 h-11 rounded-full bg-amber-100 text-orange-800 flex items-center justify-center text-2xl font-bold shadow-inner border-2 border-amber-300 shrink-0" aria-hidden="true">
+          ॐ
+        </div>
+        <div>
+          <h1 class="text-xl sm:text-2xl font-extrabold tracking-tight leading-tight">Bhakti Status Maker</h1>
+          <p class="text-xs sm:text-sm text-amber-100 font-medium">Live Devotional Photos • One-Tap WhatsApp Status</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2 shrink-0">
+        <button
+          id="apiSettingsBtn"
+          type="button"
+          class="bg-white/15 hover:bg-white/25 active:bg-white/30 text-white text-xs sm:text-sm font-semibold px-3 py-2 rounded-xl border border-white/30 transition flex items-center gap-1"
+          aria-label="Configure optional Pixabay API key"
+          title="Optional Photo Source Settings"
+        >
+          <span>⚙️</span>
+          <span class="hidden sm:inline">Source</span>
+        </button>
+        <button
+          id="installHelpBtn"
+          type="button"
+          class="bg-white/15 hover:bg-white/25 active:bg-white/30 text-white text-xs sm:text-sm font-semibold px-3 py-2 rounded-xl border border-white/30 transition flex items-center gap-1.5"
+          aria-label="How to add app to phone home screen"
+        >
+          <span>📲</span>
+          <span class="hidden sm:inline">Add to Phone</span>
+          <span class="sm:hidden">App</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-4xl mx-auto px-4 pt-5 space-y-6">
+
+    <!-- STEP 1: Parent-Friendly Profile Card -->
+    <section aria-labelledby="profile-heading" class="bg-white rounded-3xl shadow-md border-2 border-amber-200 overflow-hidden">
+      <div class="bg-amber-50/90 px-5 py-3.5 border-b border-amber-200 flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <span class="bg-orange-600 text-white text-sm font-extrabold w-7 h-7 rounded-full flex items-center justify-center">1</span>
+          <h2 id="profile-heading" class="text-lg sm:text-xl font-extrabold text-stone-900">Your Name &amp; Photo</h2>
+        </div>
+        <button
+          id="toggleProfileBtn"
+          type="button"
+          class="text-orange-800 hover:text-orange-950 font-bold text-sm px-3 py-1.5 rounded-xl bg-amber-200/70 hover:bg-amber-200 transition"
+        >
+          Hide / Edit
+        </button>
+      </div>
+
+      <!-- Compact Summary Bar (shown when collapsed) -->
+      <div id="profileCompactBar" class="hidden px-5 py-3.5 flex items-center justify-between gap-3 bg-white">
+        <div class="flex items-center gap-3 min-w-0">
+          <img id="compactAvatar" src="" alt="Your profile photo" class="hidden w-12 h-12 rounded-full object-cover border-2 border-amber-500 shrink-0" />
+          <div id="compactAvatarFallback" class="w-12 h-12 rounded-full bg-orange-100 text-orange-700 border-2 border-amber-400 flex items-center justify-center font-extrabold text-lg shrink-0">
+            🙏
+          </div>
+          <div class="min-w-0">
+            <p id="compactNameDisplay" class="font-extrabold text-lg text-stone-900 truncate">Your Name</p>
+            <p id="compactSubtitleDisplay" class="text-sm text-stone-600 truncate">Jai Shri Ram 🙏</p>
+          </div>
+        </div>
+        <button
+          id="expandProfileBtn"
+          type="button"
+          class="shrink-0 bg-orange-100 hover:bg-orange-200 text-orange-900 font-bold text-sm px-4 py-2.5 rounded-xl border border-orange-300 transition"
+        >
+          ✏️ Change
+        </button>
+      </div>
+
+      <!-- Full Editable Profile Form -->
+      <div id="profileFormBody" class="p-5 space-y-5">
+        <div class="flex flex-col sm:flex-row items-center gap-5">
+          <!-- Circular Photo Upload & Preview -->
+          <div class="flex flex-col items-center shrink-0">
+            <div class="relative w-28 h-28 rounded-full border-4 border-amber-500 shadow-md bg-orange-50 flex items-center justify-center overflow-hidden">
+              <img id="profilePreviewImg" src="" alt="Uploaded profile preview" class="hidden w-full h-full object-cover" />
+              <div id="profilePlaceholderIcon" class="text-center p-2">
+                <span class="text-3xl block">🙏</span>
+                <span class="text-xs font-bold text-orange-800 leading-tight block mt-1">No Photo</span>
+              </div>
+            </div>
+            <div class="flex items-center gap-2 mt-3">
+              <label
+                for="userPhotoInput"
+                class="cursor-pointer bg-orange-600 hover:bg-orange-700 active:bg-orange-800 text-white font-bold text-sm px-4 py-2.5 rounded-xl shadow transition flex items-center gap-1.5"
+              >
+                <span>📷</span>
+                <span id="uploadPhotoBtnText">Upload Photo</span>
+              </label>
+              <button
+                id="removePhotoBtn"
+                type="button"
+                class="hidden bg-stone-200 hover:bg-stone-300 text-stone-800 font-bold text-sm px-3 py-2.5 rounded-xl transition"
+                title="Remove uploaded photo"
+              >
+                ✕
+              </button>
+            </div>
+            <input id="userPhotoInput" type="file" accept="image/*" class="hidden" />
+          </div>
+
+          <!-- Name & Greeting Inputs -->
+          <div class="w-full space-y-4">
+            <div>
+              <label for="userNameInput" class="block text-base font-extrabold text-stone-800 mb-1.5">
+                Your Full Name (Shown on Status)
+              </label>
+              <input
+                id="userNameInput"
+                type="text"
+                maxlength="36"
+                placeholder="e.g., Sushil Kumar"
+                class="w-full text-lg font-bold text-stone-900 bg-amber-50/50 border-2 border-stone-300 focus:border-orange-600 focus:bg-white focus:outline-none rounded-2xl px-4 py-3 transition"
+              />
+            </div>
+
+            <div>
+              <label for="userSubtitleInput" class="block text-base font-extrabold text-stone-800 mb-1.5">
+                Greeting / Blessing Line
+              </label>
+              <input
+                id="userSubtitleInput"
+                type="text"
+                maxlength="44"
+                placeholder="e.g., Jai Shri Ram 🙏"
+                class="w-full text-base font-semibold text-stone-800 bg-amber-50/50 border-2 border-stone-300 focus:border-orange-600 focus:bg-white focus:outline-none rounded-2xl px-4 py-3 transition"
+              />
+              <!-- Quick One-Tap Greeting Pills for Elderly Ease -->
+              <div class="flex flex-wrap gap-2 mt-2.5" aria-label="Quick greeting presets">
+                <button type="button" data-preset="Jai Shri Ram 🙏" class="preset-pill text-xs sm:text-sm font-bold bg-orange-100 hover:bg-orange-200 text-orange-900 px-3 py-1.5 rounded-xl border border-orange-300 transition">
+                  Jai Shri Ram 🙏
+                </button>
+                <button type="button" data-preset="Jai Mata Di 🌺" class="preset-pill text-xs sm:text-sm font-bold bg-red-100 hover:bg-red-200 text-red-900 px-3 py-1.5 rounded-xl border border-red-300 transition">
+                  Jai Mata Di 🌺
+                </button>
+                <button type="button" data-preset="Har Har Mahadev 🔱" class="preset-pill text-xs sm:text-sm font-bold bg-sky-100 hover:bg-sky-200 text-sky-900 px-3 py-1.5 rounded-xl border border-sky-300 transition">
+                  Har Har Mahadev 🔱
+                </button>
+                <button type="button" data-preset="Suprabhat • Good Morning ☀️" class="preset-pill text-xs sm:text-sm font-bold bg-amber-100 hover:bg-amber-200 text-amber-900 px-3 py-1.5 rounded-xl border border-amber-300 transition">
+                  Suprabhat ☀️
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-1 flex items-center justify-between text-xs sm:text-sm text-stone-600 bg-stone-50 px-4 py-2.5 rounded-xl border border-stone-200">
+          <span>✅ Saved automatically on this phone</span>
+          <button id="doneProfileBtn" type="button" class="font-extrabold text-orange-700 hover:text-orange-900 underline">
+            Done Editing ↑
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- STEP 2: Live Internet Devotional Photo Explorer & Custom Upload -->
+    <section aria-labelledby="templates-heading" class="space-y-4">
+      <div class="bg-white p-4 sm:p-5 rounded-3xl shadow-sm border-2 border-amber-200 space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div class="flex items-center gap-2.5">
+            <span class="bg-orange-600 text-white text-sm font-extrabold w-7 h-7 rounded-full flex items-center justify-center shrink-0">2</span>
+            <div>
+              <h2 id="templates-heading" class="text-lg sm:text-xl font-extrabold text-stone-900">Choose Deity Photo &amp; Share</h2>
+              <p id="daySpecialSubtitle" class="text-sm text-orange-800 font-semibold">Fetching fresh devotional photos from the internet...</p>
+            </div>
+          </div>
+
+          <!-- Custom Background Upload Button -->
+          <label
+            for="customBgInput"
+            class="cursor-pointer bg-amber-100 hover:bg-amber-200 active:bg-amber-300 text-amber-950 font-extrabold text-sm sm:text-base px-4 py-3 rounded-2xl border-2 border-amber-400 shadow-sm transition flex items-center justify-center gap-2 shrink-0"
+          >
+            <span class="text-lg">🖼️</span>
+            <span>Use My Own Gallery Photo</span>
+          </label>
+          <input id="customBgInput" type="file" accept="image/*" class="hidden" />
+        </div>
+
+        <!-- Large Parent-Friendly Deity Category Tabs -->
+        <div id="categoryTabsContainer" class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1" role="tablist" aria-label="Deity photo categories">
+          <!-- Category buttons injected by JS -->
+        </div>
+
+        <!-- Custom Internet Search & Load More Bar -->
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 pt-1">
+          <form id="internetSearchForm" class="flex-1 flex items-center gap-2">
+            <input
+              id="customSearchInput"
+              type="text"
+              placeholder="Search any God or festival (e.g., Sai Baba, Diwali, Radha Krishna)..."
+              class="w-full text-base font-semibold text-stone-900 bg-amber-50/60 border-2 border-stone-300 focus:border-orange-600 focus:bg-white focus:outline-none rounded-2xl px-4 py-2.5 transition"
+            />
+            <button
+              type="submit"
+              class="shrink-0 bg-orange-600 hover:bg-orange-700 active:bg-orange-800 text-white font-extrabold text-base px-5 py-2.5 rounded-2xl shadow transition"
+            >
+              🔍 Search
+            </button>
+          </form>
+
+          <button
+            id="refreshMoreBtn"
+            type="button"
+            class="shrink-0 bg-amber-100 hover:bg-amber-200 active:bg-amber-300 text-amber-950 font-extrabold text-base px-4 py-2.5 rounded-2xl border-2 border-amber-400 transition flex items-center justify-center gap-2"
+          >
+            <span>🔄</span>
+            <span>Load More Photos</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Custom Uploaded Background Card (Hidden until user uploads a custom deity/festival photo) -->
+      <div id="customTemplateWrapper" class="hidden">
+        <article class="bg-white rounded-3xl shadow-lg border-2 border-orange-400 overflow-hidden p-4 sm:p-5 space-y-4">
+          <div class="flex items-center justify-between">
+            <span class="inline-flex items-center gap-1.5 bg-orange-100 text-orange-900 font-extrabold text-sm px-3 py-1 rounded-full">
+              ✨ Your Custom Photo Status
+            </span>
+            <button
+              id="clearCustomBgBtn"
+              type="button"
+              class="text-sm font-bold text-stone-500 hover:text-red-700 px-2.5 py-1 rounded-lg"
+            >
+              Remove
+            </button>
+          </div>
+
+      <!-- Loading Skeleton Banner -->
+      <div id="loadingIndicator" class="hidden bg-white rounded-3xl p-8 border-2 border-amber-200 text-center space-y-3 shadow-sm">
+        <div class="w-12 h-12 border-4 border-orange-200 border-t-orange-600 rounded-full animate-spin mx-auto"></div>
+        <p id="loadingText" class="text-lg font-extrabold text-stone-800">Searching sacred photos on the internet...</p>
+        <p class="text-sm text-stone-500">Adding your circular photo &amp; golden frame automatically</p>
+      </div>
+
+      <!-- Offline / Fallback Notice Banner -->
+      <div id="fallbackNoticeBanner" class="hidden bg-amber-100/90 border-2 border-amber-400 text-amber-950 px-4 py-3 rounded-2xl text-sm font-semibold flex items-center justify-between gap-3">
+        <span id="fallbackNoticeText">Showing built-in devotional cards. Tap "Load More Photos" to retry live search.</span>
+        <button id="retryFetchBtn" type="button" class="shrink-0 bg-orange-600 text-white font-bold px-3 py-1.5 rounded-xl text-xs">Retry</button>
+      </div>
+
+      <!-- Live Fetched & Rendered Status Cards Grid -->
+      <div id="templatesGrid" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Cards injected dynamically by JS -->
+      </div>
+
+      <!-- Bottom Load More CTA for effortless scrolling -->
+      <div id="bottomLoadMoreContainer" class="hidden pt-2 text-center">
+        <button
+          id="bottomLoadMoreBtn"
+          type="button"
+          class="w-full sm:w-auto bg-orange-600 hover:bg-orange-700 active:bg-orange-800 text-white font-extrabold text-lg px-8 py-4 rounded-2xl shadow-md transition inline-flex items-center justify-center gap-2.5"
+        >
+          <span>✨</span>
+          <span>Show More Fresh Photos</span>
+        </button>
+      </div>
+    </section>
+  </main>
+
+  <!-- Toast Notification Banner (Replaces alert() with accessible status feedback) -->
+  <div
+    id="toastBanner"
+    role="status"
+    aria-live="polite"
+    class="fixed bottom-5 left-1/2 -translate-x-1/2 z-50 max-w-md w-[92%] bg-stone-900 text-white px-5 py-4 rounded-2xl shadow-2xl border border-amber-400/50 flex items-center gap-3 transition-all duration-300 opacity-0 pointer-events-none translate-y-4"
+  >
+    <span id="toastIcon" class="text-2xl shrink-0">✅</span>
+    <p id="toastMessage" class="text-sm sm:text-base font-semibold leading-snug"></p>
+  </div>
+
+  <!-- Modal: Add to Home Screen Guide -->
+  <div
+    id="installModal"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="installModalTitle"
+    class="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs hidden items-center justify-center p-4"
+  >
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl border-2 border-amber-300">
+      <div class="flex items-center justify-between">
+        <h3 id="installModalTitle" class="text-xl font-extrabold text-stone-900">📲 Save App on Phone</h3>
+        <button id="closeInstallModalBtn" type="button" class="w-9 h-9 rounded-full bg-stone-100 hover:bg-stone-200 font-bold text-stone-700">✕</button>
+      </div>
+      <p class="text-stone-700 text-base leading-relaxed">
+        Put this page right next to WhatsApp on your phone screen so you can open it with one tap every morning:
+      </p>
+      <div class="space-y-3 bg-amber-50 p-4 rounded-2xl border border-amber-200 text-sm sm:text-base text-stone-800">
+        <p><strong>On Android (Chrome):</strong> Tap the <strong>⋮ (3 dots)</strong> at the top-right corner, then tap <strong>"Add to Home screen"</strong> or <strong>"Install app"</strong>.</p>
+        <p><strong>On iPhone (Safari):</strong> Tap the <strong>Share (⬆️)</strong> button at the bottom, then scroll down and tap <strong>"Add to Home Screen"</strong>.</p>
+      </div>
+      <button
+        id="gotItInstallBtn"
+        type="button"
+        class="w-full bg-orange-600 hover:bg-orange-700 text-white font-extrabold text-base py-3.5 rounded-2xl shadow transition"
+      >
+        Got It!
+      </button>
+    </div>
+  </div>
+
+  <!-- Modal: Optional Pixabay API Key Settings -->
+  <div
+    id="apiSettingsModal"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="apiSettingsTitle"
+    class="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs hidden items-center justify-center p-4"
+  >
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl border-2 border-amber-300">
+      <div class="flex items-center justify-between">
+        <h3 id="apiSettingsTitle" class="text-xl font-extrabold text-stone-900">⚙️ Internet Photo Sources</h3>
+        <button id="closeApiModalBtn" type="button" class="w-9 h-9 rounded-full bg-stone-100 hover:bg-stone-200 font-bold text-stone-700">✕</button>
+      </div>
+      <p class="text-stone-700 text-sm leading-relaxed">
+        By default, this app searches <strong>Wikimedia Commons</strong> live with zero API keys needed. Optionally, you can paste a free <strong>Pixabay API Key</strong> below to blend in additional high-resolution portrait photography:
+      </p>
+      <div>
+        <label for="pixabayKeyInput" class="block text-sm font-extrabold text-stone-800 mb-1">
+          Optional Pixabay API Key
+        </label>
+        <input
+          id="pixabayKeyInput"
+          type="text"
+          placeholder="Paste free Pixabay key (optional)..."
+          class="w-full text-sm font-semibold text-stone-900 bg-amber-50/60 border-2 border-stone-300 focus:border-orange-600 focus:bg-white focus:outline-none rounded-2xl px-4 py-2.5"
+        />
+      </div>
+      <div class="flex items-center gap-2.5 pt-1">
+        <button
+          id="saveApiKeyBtn"
+          type="button"
+          class="flex-1 bg-orange-600 hover:bg-orange-700 text-white font-extrabold text-base py-3 rounded-2xl shadow transition"
+        >
+          Save &amp; Refresh
+        </button>
+        <button
+          id="clearApiKeyBtn"
+          type="button"
+          class="bg-stone-200 hover:bg-stone-300 text-stone-800 font-bold text-sm px-4 py-3 rounded-2xl transition"
+        >
+          Clear
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /**
+     * Bhakti Status Maker - Live Internet Photo Search + HTML5 Canvas Compositor & PWA Share Engine
+     * Fetches CORS-safe devotional artwork via Wikimedia Commons API (origin=*) & optional Pixabay API,
+     * renders 1080x1920 (9:16) HD WhatsApp Status overlays, and shares natively via Web Share API.
+     */
+    (function () {
+      'use strict';
+
+      // Canvas output resolution (Standard WhatsApp Status 9:16 HD)
+      const CANVAS_WIDTH = 1080;
+      const CANVAS_HEIGHT = 1920;
+
+      // LocalStorage Keys
+      const STORAGE_KEYS = {
+        NAME: 'bhakti_status_user_name_v1',
+        SUBTITLE: 'bhakti_status_user_subtitle_v1',
+        PHOTO: 'bhakti_status_user_photo_v1',
+        COLLAPSED: 'bhakti_status_profile_collapsed_v1',
+        PIXABAY_KEY: 'bhakti_status_pixabay_key_v1'
+      };
+
+      // Deity Categories with tailored search queries & blessing defaults
+      const CATEGORIES = [
+        {
+          id: 'today',
+          label: "✨ Today's Special",
+          defaultGreeting: 'Jai Shri Ram 🙏',
+          queries: ['Hanuman Hindu painting', 'Durga Mata painting', 'Shiva Hindu art'],
+          pixabayQuery: 'hindu temple deity'
+        },
+        {
+          id: 'hanuman',
+          label: '🚩 Hanuman Ji',
+          defaultGreeting: 'Jai Bajrangbali 🙏',
+          queries: ['Hanuman painting', 'Lord Hanuman murti', 'Panchamukhi Hanuman'],
+          pixabayQuery: 'hanuman temple'
+        },
+        {
+          id: 'mata',
+          label: '🌺 Mata Rani',
+          defaultGreeting: 'Jai Mata Di 🌺',
+          queries: ['Durga painting', 'Kali Durga Lakshmi art', 'Vaishno Devi Durga murti'],
+          pixabayQuery: 'durga goddess'
+        },
+        {
+          id: 'shiv',
+          label: '🔱 Shiv Ji',
+          defaultGreeting: 'Har Har Mahadev 🔱',
+          queries: ['Shiva painting Hindu', 'Nataraja Shiva murti', 'Kedarnath Mahadev'],
+          pixabayQuery: 'shiva temple'
+        },
+        {
+          id: 'ganesh',
+          label: '🐘 Ganesh Ji',
+          defaultGreeting: 'Ganpati Bappa Morya 🙏',
+          queries: ['Ganesha painting Hindu', 'Lord Ganesha murti', 'Siddhivinayak Ganesha'],
+          pixabayQuery: 'ganesha'
+        },
+        {
+          id: 'krishna',
+          label: '🦚 Krishna Ji',
+          defaultGreeting: 'Radhe Radhe 🙏',
+          queries: ['Krishna Radha painting', 'Lord Krishna art', 'Vrindavan Krishna'],
+          pixabayQuery: 'krishna'
+        },
+        {
+          id: 'vishnu',
+          label: '🪷 Vishnu Ji',
+          defaultGreeting: 'Om Namo Narayanaya 🙏',
+          queries: ['Vishnu Lakshmi painting', 'Lord Vishnu Hindu art', 'Tirupati Balaji'],
+          pixabayQuery: 'vishnu temple'
+        },
+        {
+          id: 'surya',
+          label: '☀️ Morning / Surya',
+          defaultGreeting: 'Suprabhat • Good Morning ☀️',
+          queries: ['Surya Hindu god painting', 'Ganga Aarti Varanasi', 'Hindu temple sunrise'],
+          pixabayQuery: 'diya lamp temple'
+        }
+      ];
+
+      // Offline / Fallback Built-In Procedural Templates (used if network is offline or returns 0 results)
+      const FALLBACK_TEMPLATES = [
+        {
+          id: 'fallback-hanuman',
+          badge: '🚩 Tuesday & Saturday Special',
+          title: 'Jai Shri Hanuman',
+          deityHindi: '॥ जय श्री हनुमान ॥',
+          deityEnglish: 'JAI BAJRANGBALI',
+          blessingLines: [
+            'संकट कटै मिटै सब पीरा ।',
+            'जो सुमिरै हनुमत बलबीरा ॥',
+            'May Lord Hanuman bless you with strength & peace.'
+          ],
+          symbol: 'ॐ',
+          subSymbol: '🚩',
+          palette: {
+            bgTop: '#7c2d12',
+            bgMid: '#ea580c',
+            bgBottom: '#431407',
+            glow: '#fde047',
+            accent: '#fbbf24',
+            cardTint: 'rgba(67, 20, 7, 0.86)'
+          }
+        },
+        {
+          id: 'fallback-mata',
+          badge: '🌺 Navratri & Friday Special',
+          title: 'Jai Mata Di',
+          deityHindi: '॥ जय माता दी ॥',
+          deityEnglish: 'JAI MAA DURGA',
+          blessingLines: [
+            'सर्वमंगल मांगल्ये शिवे सर्वार्थ साधिके ।',
+            'शरण्ये त्र्यंबके गौरि नारायणि नमोऽस्तु ते ॥',
+            'May Maa Rani fill your home with joy & prosperity.'
+          ],
+          symbol: '卐',
+          subSymbol: '🌺',
+          palette: {
+            bgTop: '#701a75',
+            bgMid: '#be123c',
+            bgBottom: '#4c0519',
+            glow: '#fbcfe8',
+            accent: '#fcd34d',
+            cardTint: 'rgba(76, 5, 25, 0.86)'
+          }
+        },
+        {
+          id: 'fallback-shiv',
+          badge: '🔱 Monday & Pradosh Special',
+          title: 'Har Har Mahadev',
+          deityHindi: '॥ हर हर महादेव ॥',
+          deityEnglish: 'OM NAMAH SHIVAYA',
+          blessingLines: [
+            'ॐ त्र्यम्बकं यजामहे सुगन्धिं पुष्टिवर्धनम् ।',
+            'उर्वारुकमिव बन्धनान्मृत्योर्मुक्षीय माऽमृतात् ॥',
+            'May Bholenath protect & guide your entire family.'
+          ],
+          symbol: '🔱',
+          subSymbol: '🌙',
+          palette: {
+            bgTop: '#0f172a',
+            bgMid: '#1e3a8a',
+            bgBottom: '#090d16',
+            glow: '#7dd3fc',
+            accent: '#fbbf24',
+            cardTint: 'rgba(15, 23, 42, 0.88)'
+          }
+        },
+        {
+          id: 'fallback-suprabhat',
+          badge: '☀️ Daily Morning Blessing',
+          title: 'Suprabhat / Good Morning',
+          deityHindi: '॥ सुप्रभात वंदन ॥',
+          deityEnglish: 'SHUBH PRABHAT',
+          blessingLines: [
+            'नई सुबह, नई उम्मीद और प्रभु का आशीर्वाद,',
+            'आपका आज का दिन मंगलमय और सुखद हो ।',
+            'Wishing you a peaceful & blessed morning.'
+          ],
+          symbol: '☀️',
+          subSymbol: '🪷',
+          palette: {
+            bgTop: '#9a3412',
+            bgMid: '#f59e0b',
+            bgBottom: '#78350f',
+            glow: '#fef08a',
+            accent: '#fffbeb',
+            cardTint: 'rgba(120, 53, 15, 0.86)'
+          }
+        }
+      ];
+
+      // Application State
+      const state = {
+        name: '',
+        subtitle: 'Jai Shri Ram 🙏',
+        photoDataUrl: null,
+        userImageObj: null,
+        customBgDataUrl: null,
+        customBgImageObj: null,
+        activeCategoryId: 'today',
+        customQuery: '',
+        searchOffset: 0,
+        pixabayKey: '',
+        fetchedCards: [], // Array of { id, title, badge, source, imageUrl, imgObj, isFallback, fallbackData }
+        isLoading: false
+      };
+
+      // DOM References
+      const els = {
+        userNameInput: document.getElementById('userNameInput'),
+        userSubtitleInput: document.getElementById('userSubtitleInput'),
+        userPhotoInput: document.getElementById('userPhotoInput'),
+        profilePreviewImg: document.getElementById('profilePreviewImg'),
+        profilePlaceholderIcon: document.getElementById('profilePlaceholderIcon'),
+        uploadPhotoBtnText: document.getElementById('uploadPhotoBtnText'),
+        removePhotoBtn: document.getElementById('removePhotoBtn'),
+        profileFormBody: document.getElementById('profileFormBody'),
+        profileCompactBar: document.getElementById('profileCompactBar'),
+        toggleProfileBtn: document.getElementById('toggleProfileBtn'),
+        expandProfileBtn: document.getElementById('expandProfileBtn'),
+        doneProfileBtn: document.getElementById('doneProfileBtn'),
+        compactAvatar: document.getElementById('compactAvatar'),
+        compactAvatarFallback: document.getElementById('compactAvatarFallback'),
+        compactNameDisplay: document.getElementById('compactNameDisplay'),
+        compactSubtitleDisplay: document.getElementById('compactSubtitleDisplay'),
+        daySpecialSubtitle: document.getElementById('daySpecialSubtitle'),
+        categoryTabsContainer: document.getElementById('categoryTabsContainer'),
+        internetSearchForm: document.getElementById('internetSearchForm'),
+        customSearchInput: document.getElementById('customSearchInput'),
+        refreshMoreBtn: document.getElementById('refreshMoreBtn'),
+        bottomLoadMoreContainer: document.getElementById('bottomLoadMoreContainer'),
+        bottomLoadMoreBtn: document.getElementById('bottomLoadMoreBtn'),
+        loadingIndicator: document.getElementById('loadingIndicator'),
+        loadingText: document.getElementById('loadingText'),
+        fallbackNoticeBanner: document.getElementById('fallbackNoticeBanner'),
+        fallbackNoticeText: document.getElementById('fallbackNoticeText'),
+        retryFetchBtn: document.getElementById('retryFetchBtn'),
+        templatesGrid: document.getElementById('templatesGrid'),
+        customBgInput: document.getElementById('customBgInput'),
+        customTemplateWrapper: document.getElementById('customTemplateWrapper'),
+        clearCustomBgBtn: document.getElementById('clearCustomBgBtn'),
+        toastBanner: document.getElementById('toastBanner'),
+        toastIcon: document.getElementById('toastIcon'),
+        toastMessage: document.getElementById('toastMessage'),
+        installHelpBtn: document.getElementById('installHelpBtn'),
+        installModal: document.getElementById('installModal'),
+        closeInstallModalBtn: document.getElementById('closeInstallModalBtn'),
+        gotItInstallBtn: document.getElementById('gotItInstallBtn'),
+        apiSettingsBtn: document.getElementById('apiSettingsBtn'),
+        apiSettingsModal: document.getElementById('apiSettingsModal'),
+        closeApiModalBtn: document.getElementById('closeApiModalBtn'),
+        pixabayKeyInput: document.getElementById('pixabayKeyInput'),
+        saveApiKeyBtn: document.getElementById('saveApiKeyBtn'),
+        clearApiKeyBtn: document.getElementById('clearApiKeyBtn')
+      };
+
+      let toastTimeout = null;
+
+      /**
+       * Generate an inline Web App Manifest blob so "Add to Home Screen" installs cleanly
+       */
+      function setupInlinePwaManifest() {
+        try {
+          const svgIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="112" fill="#9a3412"/><circle cx="256" cy="256" r="190" fill="none" stroke="#fbbf24" stroke-width="18"/><text x="256" y="315" font-size="220" text-anchor="middle" fill="#fef3c7" font-family="serif">ॐ</text></svg>`;
+          const iconDataUrl = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgIcon)));
+
+          const manifest = {
+            name: 'Bhakti Status Maker',
+            short_name: 'Bhakti Status',
+            description: 'Create and share daily devotional WhatsApp status photos with your name and photo.',
+            start_url: window.location.pathname || './',
+            display: 'standalone',
+            background_color: '#fffbf5',
+            theme_color: '#9a3412',
+            icons: [
+              {
+                src: iconDataUrl,
+                sizes: '512x512',
+                type: 'image/svg+xml',
+                purpose: 'any maskable'
+              }
+            ]
+          };
+
+          const blob = new Blob([JSON.stringify(manifest)], { type: 'application/manifest+json' });
+          const manifestUrl = URL.createObjectURL(blob);
+          const linkEl = document.getElementById('pwaManifestLink');
+          if (linkEl) linkEl.href = manifestUrl;
+        } catch (err) {
+          console.warn('Inline PWA manifest setup skipped:', err);
+        }
+      }
+
+      /**
+       * Day-of-the-Week Smart Auto-Selection
+       * 0=Sun (Surya), 1=Mon (Shiv Ji), 2=Tue (Hanuman Ji), 3=Wed (Ganesh Ji),
+       * 4=Thu (Vishnu Ji), 5=Fri (Mata Rani), 6=Sat (Hanuman Ji)
+       */
+      function getTodayDeityConfig() {
+        const dayIndex = new Date().getDay();
+        const schedule = {
+          0: {
+            dayName: 'Sunday',
+            categoryId: 'surya',
+            bannerText: '☀️ Sunday Special: Surya Dev & Morning Blessings',
+            greeting: 'Suprabhat • Good Morning ☀️'
+          },
+          1: {
+            dayName: 'Monday (Somwar)',
+            categoryId: 'shiv',
+            bannerText: '🔱 Monday (Somwar) Special: Har Har Mahadev',
+            greeting: 'Har Har Mahadev 🔱'
+          },
+          2: {
+            dayName: 'Tuesday (Mangalwar)',
+            categoryId: 'hanuman',
+            bannerText: '🚩 Tuesday (Mangalwar) Special: Jai Shri Hanuman',
+            greeting: 'Jai Bajrangbali 🙏'
+          },
+          3: {
+            dayName: 'Wednesday (Budhwar)',
+            categoryId: 'ganesh',
+            bannerText: '🐘 Wednesday (Budhwar) Special: Shri Ganeshaya Namah',
+            greeting: 'Ganpati Bappa Morya 🙏'
+          },
+          4: {
+            dayName: 'Thursday (Guruwar)',
+            categoryId: 'vishnu',
+            bannerText: '🪷 Thursday (Guruwar) Special: Om Namo Narayanaya',
+            greeting: 'Om Namo Narayanaya 🙏'
+          },
+          5: {
+            dayName: 'Friday (Shukrawar)',
+            categoryId: 'mata',
+            bannerText: '🌺 Friday (Shukrawar) Special: Jai Mata Di',
+            greeting: 'Jai Mata Di 🌺'
+          },
+          6: {
+            dayName: 'Saturday (Shaniwar)',
+            categoryId: 'hanuman',
+            bannerText: '🚩 Saturday (Shaniwar) Special: Sankatmochan Hanuman Ji',
+            greeting: 'Jai Shri Ram • Jai Hanuman 🙏'
+          }
+        };
+        return schedule[dayIndex] || schedule[2];
+      }
+
+      /**
+       * Show non-intrusive toast feedback instead of browser alert()
+       */
+      function showToast(message, icon = '✅', duration = 4200) {
+        els.toastMessage.textContent = message;
+        els.toastIcon.textContent = icon;
+        els.toastBanner.classList.remove('opacity-0', 'pointer-events-none', 'translate-y-4');
+        els.toastBanner.classList.add('opacity-100', 'translate-y-0');
+
+        if (toastTimeout) clearTimeout(toastTimeout);
+        toastTimeout = setTimeout(() => {
+          els.toastBanner.classList.add('opacity-0', 'pointer-events-none', 'translate-y-4');
+          els.toastBanner.classList.remove('opacity-100', 'translate-y-0');
+        }, duration);
+      }
+
+      /**
+       * Load saved state from URL parameters and localStorage
+       */
+      function loadSavedProfile() {
+        try {
+          const urlParams = new URLSearchParams(window.location.search);
+          const urlName = urlParams.get('name');
+          const urlSubtitle = urlParams.get('subtitle');
+
+          const savedName = localStorage.getItem(STORAGE_KEYS.NAME);
+          const savedSubtitle = localStorage.getItem(STORAGE_KEYS.SUBTITLE);
+          const savedPhoto = localStorage.getItem(STORAGE_KEYS.PHOTO);
+          const savedPixabayKey = localStorage.getItem(STORAGE_KEYS.PIXABAY_KEY);
+
+          const todayConfig = getTodayDeityConfig();
+
+          state.name = (urlName && urlName.trim()) ? urlName.trim() : (savedName || '');
+          state.subtitle = (urlSubtitle && urlSubtitle.trim())
+            ? urlSubtitle.trim()
+            : (savedSubtitle || todayConfig.greeting);
+          state.pixabayKey = savedPixabayKey || '';
+
+          if (els.pixabayKeyInput) {
+            els.pixabayKeyInput.value = state.pixabayKey;
+          }
+
+          if (urlName) localStorage.setItem(STORAGE_KEYS.NAME, state.name);
+          if (urlSubtitle) localStorage.setItem(STORAGE_KEYS.SUBTITLE, state.subtitle);
+
+          els.userNameInput.value = state.name;
+          els.userSubtitleInput.value = state.subtitle;
+
+          if (savedPhoto) {
+            state.photoDataUrl = savedPhoto;
+            loadUserImageElement(savedPhoto);
+          }
+
+          updateProfileUI();
+
+          const isCollapsed = localStorage.getItem(STORAGE_KEYS.COLLAPSED) === 'true';
+          if (state.name && isCollapsed) {
+            setProfileCollapsed(true);
+          }
+        } catch (err) {
+          console.error('Error loading profile from storage:', err);
+        }
+      }
+
+      /**
+       * Save current profile fields to localStorage safely
+       */
+      function persistProfile() {
+        try {
+          localStorage.setItem(STORAGE_KEYS.NAME, state.name);
+          localStorage.setItem(STORAGE_KEYS.SUBTITLE, state.subtitle);
+          if (state.photoDataUrl) {
+            localStorage.setItem(STORAGE_KEYS.PHOTO, state.photoDataUrl);
+          } else {
+            localStorage.removeItem(STORAGE_KEYS.PHOTO);
+          }
+        } catch (err) {
+          console.warn('Storage quota warning:', err);
+        }
+      }
+
+      /**
+       * Compress uploaded user photo to a clean 400x400 square JPEG so localStorage never overflows
+       */
+      function processUploadedAvatar(file) {
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          const img = new Image();
+          img.onload = function () {
+            const size = 400;
+            const offCanvas = document.createElement('canvas');
+            offCanvas.width = size;
+            offCanvas.height = size;
+            const ctx = offCanvas.getContext('2d');
+
+            const minSide = Math.min(img.width, img.height);
+            const sx = (img.width - minSide) / 2;
+            const sy = (img.height - minSide) / 2;
+
+            ctx.drawImage(img, sx, sy, minSide, minSide, 0, 0, size, size);
+            const compressedDataUrl = offCanvas.toDataURL('image/jpeg', 0.85);
+
+            state.photoDataUrl = compressedDataUrl;
+            persistProfile();
+            loadUserImageElement(compressedDataUrl, () => {
+              updateProfileUI();
+              renderAllCanvases();
+              showToast('Your photo has been added to all status cards!', '📷');
+            });
+          };
+          img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+
+      function loadUserImageElement(dataUrl, callback) {
+        const img = new Image();
+        img.onload = function () {
+          state.userImageObj = img;
+          if (callback) callback();
+        };
+        img.src = dataUrl;
+      }
+
+      function updateProfileUI() {
+        const displayName = state.name.trim() || 'Your Name Here';
+        const displaySubtitle = state.subtitle.trim() || 'Jai Shri Ram 🙏';
+
+        els.compactNameDisplay.textContent = displayName;
+        els.compactSubtitleDisplay.textContent = displaySubtitle;
+
+        if (state.photoDataUrl) {
+          els.profilePreviewImg.src = state.photoDataUrl;
+          els.profilePreviewImg.classList.remove('hidden');
+          els.profilePlaceholderIcon.classList.add('hidden');
+          els.uploadPhotoBtnText.textContent = 'Change Photo';
+          els.removePhotoBtn.classList.remove('hidden');
+
+          els.compactAvatar.src = state.photoDataUrl;
+          els.compactAvatar.classList.remove('hidden');
+          els.compactAvatarFallback.classList.add('hidden');
+        } else {
+          els.profilePreviewImg.classList.add('hidden');
+          els.profilePlaceholderIcon.classList.remove('hidden');
+          els.uploadPhotoBtnText.textContent = 'Upload Photo';
+          els.removePhotoBtn.classList.add('hidden');
+
+          els.compactAvatar.classList.add('hidden');
+          els.compactAvatarFallback.classList.remove('hidden');
+        }
+      }
+
+      function setProfileCollapsed(collapsed) {
+        if (collapsed) {
+          els.profileFormBody.classList.add('hidden');
+          els.profileCompactBar.classList.remove('hidden');
+          els.toggleProfileBtn.textContent = 'Edit';
+        } else {
+          els.profileFormBody.classList.remove('hidden');
+          els.profileCompactBar.classList.add('hidden');
+          els.toggleProfileBtn.textContent = 'Hide';
+        }
+        try {
+          localStorage.setItem(STORAGE_KEYS.COLLAPSED, String(collapsed));
+        } catch (_) {}
+      }
+
+      /**
+       * Build Parent-Friendly Deity Category Tabs
+       */
+      function buildCategoryTabs() {
+        els.categoryTabsContainer.innerHTML = '';
+        CATEGORIES.forEach((cat) => {
+          const isActive = state.activeCategoryId === cat.id && !state.customQuery;
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.setAttribute('role', 'tab');
+          btn.setAttribute('aria-selected', String(isActive));
+          btn.dataset.categoryId = cat.id;
+
+          btn.className = isActive
+            ? 'shrink-0 bg-orange-600 text-white font-extrabold text-sm sm:text-base px-4 py-2.5 rounded-2xl shadow-sm border-2 border-orange-700 transition'
+            : 'shrink-0 bg-amber-50 hover:bg-amber-100 text-stone-800 font-bold text-sm sm:text-base px-4 py-2.5 rounded-2xl border-2 border-amber-200 transition';
+
+          btn.textContent = cat.label;
+          btn.addEventListener('click', () => {
+            state.activeCategoryId = cat.id;
+            state.customQuery = '';
+            state.searchOffset = 0;
+            els.customSearchInput.value = '';
+            buildCategoryTabs();
+            fetchAndRenderInternetPhotos(false);
+          });
+
+          els.categoryTabsContainer.appendChild(btn);
+        });
+      }
+
+      /**
+       * Load an external CORS-enabled image safely into an HTMLImageElement
+       */
+      function loadCorsImage(url) {
+        return new Promise((resolve, reject) => {
+          const img = new Image();
+          img.crossOrigin = 'anonymous';
+          img.onload = () => resolve(img);
+          img.onerror = () => reject(new Error('Failed to load image: ' + url));
+          img.src = url;
+        });
+      }
+
+      /**
+       * Fetch CORS-safe religious artwork from Wikimedia Commons Public API
+       * Uses generator=search with gsrnamespace=6 (Files), prop=imageinfo, iiprop=url|size, iiurlwidth=1080, origin=*
+       */
+      async function fetchWikimediaImages(searchTerm, offset = 0, limit = 14) {
+        const endpoint = new URL('https://commons.wikimedia.org/w/api.php');
+        endpoint.searchParams.set('action', 'query');
+        endpoint.searchParams.set('format', 'json');
+        endpoint.searchParams.set('origin', '*');
+        endpoint.searchParams.set('generator', 'search');
+        endpoint.searchParams.set('gsrsearch', `filetype:bitmap ${searchTerm}`);
+        endpoint.searchParams.set('gsrnamespace', '6');
+        endpoint.searchParams.set('gsrlimit', String(limit));
+        endpoint.searchParams.set('gsroffset', String(offset));
+        endpoint.searchParams.set('prop', 'imageinfo');
+        endpoint.searchParams.set('iiprop', 'url|size|mime');
+        endpoint.searchParams.set('iiurlwidth', '1080');
+
+        const response = await fetch(endpoint.toString());
+        if (!response.ok) {
+          throw new Error(`Wikimedia API HTTP ${response.status}`);
+        }
+
+        const data = await response.json();
+        const pages = data && data.query && data.query.pages ? Object.values(data.query.pages) : [];
+
+        const results = [];
+        for (const page of pages) {
+          const info = page.imageinfo && page.imageinfo[0];
+          if (!info) continue;
+
+          // Filter only web-safe raster formats (JPEG / PNG / WebP)
+          const mime = (info.mime || '').toLowerCase();
+          if (!['image/jpeg', 'image/jpg', 'image/png', 'image/webp'].includes(mime)) continue;
+
+          // Prefer portrait or balanced square-ish artwork (avoid ultra-wide panoramic banners)
+          const w = info.width || 0;
+          const h = info.height || 0;
+          if (w < 350 || h < 350) continue;
+          const aspect = w / h;
+          if (aspect > 1.35) continue;
+
+          const bestUrl = info.thumburl || info.url;
+          if (!bestUrl) continue;
+
+          // Clean readable title from "File:Something_Here.jpg"
+          const cleanTitle = (page.title || 'Devotional Artwork')
+            .replace(/^File:/i, '')
+            .replace(/\.[^/.]+$/, '')
+            .replace(/[_-]+/g, ' ')
+            .slice(0, 46);
+
+          results.push({
+            id: `wiki-${page.pageid}-${offset}`,
+            title: cleanTitle || 'Devotional Artwork',
+            badge: '🌐 Live Devotional Art',
+            source: 'Wikimedia Commons',
+            imageUrl: bestUrl
+          });
+        }
+
+        return results;
+      }
+
+      /**
+       * Optional Pixabay API Fetcher (if user configured a free Pixabay API key)
+       */
+      async function fetchPixabayImages(query, page = 1, perPage = 6) {
+        if (!state.pixabayKey) return [];
+        const endpoint = new URL('https://pixabay.com/api/');
+        endpoint.searchParams.set('key', state.pixabayKey.trim());
+        endpoint.searchParams.set('q', query);
+        endpoint.searchParams.set('image_type', 'photo');
+        endpoint.searchParams.set('orientation', 'vertical');
+        endpoint.searchParams.set('safesearch', 'true');
+        endpoint.searchParams.set('page', String(page));
+        endpoint.searchParams.set('per_page', String(perPage));
+
+        const res = await fetch(endpoint.toString());
+        if (!res.ok) return [];
+        const data = await res.json();
+        const hits = Array.isArray(data.hits) ? data.hits : [];
+
+        return hits.map((hit) => ({
+          id: `pixabay-${hit.id}`,
+          title: (hit.tags || 'Sacred Temple Art').split(',')[0].trim(),
+          badge: '✨ HD Sacred Photo',
+          source: 'Pixabay',
+          imageUrl: hit.largeImageURL || hit.webformatURL
+        }));
+      }
+
+      /**
+       * Orchestrate Live Internet Search, Image Preloading, and Canvas Rendering
+       */
+      async function fetchAndRenderInternetPhotos(appendMore = false) {
+        if (state.isLoading) return;
+        state.isLoading = true;
+
+        els.fallbackNoticeBanner.classList.add('hidden');
+        els.loadingIndicator.classList.remove('hidden');
+
+        if (!appendMore) {
+          state.fetchedCards = [];
+          els.templatesGrid.innerHTML = '';
+          els.bottomLoadMoreContainer.classList.add('hidden');
+        }
+
+        try {
+          // Determine active search query
+          let searchTerm = '';
+          let pixabayTerm = '';
+          let categoryBadge = '🙏 Devotional Status';
+
+          if (state.customQuery.trim()) {
+            searchTerm = `${state.customQuery.trim()} Hindu art`;
+            pixabayTerm = state.customQuery.trim();
+            categoryBadge = `🔍 ${state.customQuery.trim()}`;
+            els.loadingText.textContent = `Searching internet for "${state.customQuery.trim()}"...`;
+          } else {
+            let targetCat = CATEGORIES.find((c) => c.id === state.activeCategoryId) || CATEGORIES[0];
+            if (targetCat.id === 'today') {
+              const todayCfg = getTodayDeityConfig();
+              targetCat = CATEGORIES.find((c) => c.id === todayCfg.categoryId) || CATEGORIES[1];
+            }
+            const queryIdx = Math.floor(state.searchOffset / 10) % targetCat.queries.length;
+            searchTerm = targetCat.queries[queryIdx];
+            pixabayTerm = targetCat.pixabayQuery;
+            categoryBadge = targetCat.label;
+            els.loadingText.textContent = `Fetching fresh ${targetCat.label} photos from the internet...`;
+          }
+
+          // Fetch from Wikimedia (and Pixabay if configured) in parallel
+          const pageNum = Math.floor(state.searchOffset / 10) + 1;
+          const [wikiCandidates, pixabayCandidates] = await Promise.all([
+            fetchWikimediaImages(searchTerm, state.searchOffset, 16),
+            fetchPixabayImages(pixabayTerm, pageNum, 4)
+          ]);
+
+          const combinedCandidates = [...pixabayCandidates, ...wikiCandidates];
+
+          // Preload up to 6 valid CORS-safe images so every card renders immediately without blank canvases
+          const loadedCards = [];
+          for (const item of combinedCandidates) {
+            if (loadedCards.length >= 6) break;
+            // Skip duplicates already in feed
+            if (state.fetchedCards.some((existing) => existing.imageUrl === item.imageUrl)) continue;
+
+            try {
+              const imgObj = await loadCorsImage(item.imageUrl);
+              loadedCards.push({
+                ...item,
+                badge: categoryBadge,
+                imgObj,
+                isFallback: false
+              });
+            } catch (_) {
+              // Skip any single image that fails CORS or network load
+            }
+          }
+
+          state.searchOffset += 12;
+
+          if (loadedCards.length > 0) {
+            state.fetchedCards = appendMore ? [...state.fetchedCards, ...loadedCards] : loadedCards;
+            renderCardsGrid();
+            els.bottomLoadMoreContainer.classList.remove('hidden');
+          } else if (!appendMore) {
+            // If internet search yielded 0 usable images or offline, gracefully load built-in devotional cards
+            activateOfflineFallback('No matching portrait images found online for this search. Showing built-in devotional cards.');
+          } else {
+            showToast('No more new photos found for this topic. Try another deity tab!', '🙏');
+          }
+        } catch (err) {
+          console.warn('Live photo search fallback triggered:', err);
+          if (!appendMore) {
+            activateOfflineFallback('Offline or slow connection detected. Showing built-in devotional cards.');
+          } else {
+            showToast('Could not fetch more photos right now. Check internet connection.', '⚠️');
+          }
+        } finally {
+          state.isLoading = false;
+          els.loadingIndicator.classList.add('hidden');
+        }
+      }
+
+      /**
+       * Populate grid with built-in procedural cards when offline
+       */
+      function activateOfflineFallback(reasonText) {
+        els.fallbackNoticeText.textContent = reasonText;
+        els.fallbackNoticeBanner.classList.remove('hidden');
+        state.fetchedCards = FALLBACK_TEMPLATES.map((tpl) => ({
+          id: tpl.id,
+          title: tpl.title,
+          badge: tpl.badge,
+          source: 'Built-in Offline Art',
+          isFallback: true,
+          fallbackData: tpl
+        }));
+        renderCardsGrid();
+      }
+
+      /**
+       * Build DOM Cards for all active fetched/fallback items and render their 1080x1920 Canvases
+       */
+      function renderCardsGrid() {
+        els.templatesGrid.innerHTML = '';
+
+        state.fetchedCards.forEach((item) => {
+          const canvasId = `canvas-${item.id}`;
+          const card = document.createElement('article');
+          card.className = 'bg-white rounded-3xl shadow-md border-2 border-amber-200/90 overflow-hidden p-4 sm:p-5 flex flex-col justify-between space-y-4';
+
+          card.innerHTML = `
+            <div class="flex items-center justify-between gap-2">
+              <span class="text-xs sm:text-sm font-extrabold text-orange-900 bg-amber-100 px-3 py-1 rounded-full border border-amber-300 truncate">
+                ${item.badge}
+              </span>
+              <span class="text-xs font-bold text-stone-500 shrink-0">${item.source}</span>
+            </div>
+
+            <div class="w-full max-w-[330px] mx-auto rounded-2xl overflow-hidden shadow-lg border border-stone-200 bg-stone-900 aspect-[9/16]">
+              <canvas id="${canvasId}" class="w-full h-full block"></canvas>
+            </div>
+
+            <div class="space-y-2.5 pt-1">
+              <button
+                type="button"
+                data-share-canvas="${canvasId}"
+                data-title="${item.title}"
+                class="share-btn btn-whatsapp w-full bg-green-600 hover:bg-green-700 active:bg-green-800 text-white font-extrabold text-lg py-4 px-5 rounded-2xl shadow-md transition flex items-center justify-center gap-2.5"
+              >
+                <svg class="w-6 h-6 fill-current shrink-0" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.274.072.376-.043c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.1.824z"/>
+                </svg>
+                <span>Share to WhatsApp</span>
+              </button>
+
+              <button
+                type="button"
+                data-download-canvas="${canvasId}"
+                data-filename="${item.id}-status.png"
+                class="download-btn w-full bg-stone-100 hover:bg-stone-200 active:bg-stone-300 text-stone-800 font-bold text-base py-3 px-4 rounded-2xl border border-stone-300 transition flex items-center justify-center gap-2"
+              >
+                <span>⬇️</span>
+                <span>Save Photo</span>
+              </button>
+            </div>
+          `;
+
+          els.templatesGrid.appendChild(card);
+
+          if (item.isFallback) {
+            renderFallbackTemplateCanvas(canvasId, item.fallbackData);
+          } else {
+            renderPhotoCardCanvas(canvasId, item.imgObj);
+          }
+        });
+      }
+
+      /**
+       * Helper: Draw rounded rectangle path
+       */
+      function roundRectPath(ctx, x, y, width, height, radius) {
+        ctx.beginPath();
+        ctx.moveTo(x + radius, y);
+        ctx.lineTo(x + width - radius, y);
+        ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+        ctx.lineTo(x + width, y + height - radius);
+        ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+        ctx.lineTo(x + radius, y + height);
+        ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+        ctx.lineTo(x, y + radius);
+        ctx.quadraticCurveTo(x, y, x + radius, y);
+        ctx.closePath();
+      }
+
+      /**
+       * Render any fetched internet photo onto a 1080x1920 9:16 Canvas with cover-crop,
+       * top & bottom legibility vignettes, golden temple border, and parent's photo + name overlay.
+       */
+      function renderPhotoCardCanvas(canvasId, img) {
+        const canvas = document.getElementById(canvasId);
+        if (!canvas || !img) return;
+        canvas.width = CANVAS_WIDTH;
+        canvas.height = CANVAS_HEIGHT;
+        const ctx = canvas.getContext('2d');
+
+        // 1. Smart Center-Crop Cover Scaling into 1080x1920 (bias slightly upward to preserve deity faces)
+        const targetRatio = CANVAS_WIDTH / CANVAS_HEIGHT;
+        const imgRatio = img.width / img.height;
+        let sx = 0, sy = 0, sw = img.width, sh = img.height;
+
+        if (imgRatio > targetRatio) {
+          sw = img.height * targetRatio;
+          sx = (img.width - sw) / 2;
+        } else {
+          sh = img.width / targetRatio;
+          sy = Math.max(0, (img.height - sh) * 0.25);
+        }
+
+        // Fill warm dark backdrop behind image
+        ctx.fillStyle = '#1c1917';
+        ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+        ctx.drawImage(img, sx, sy, sw, sh, 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+
+        // 2. Subtle Top Auspicious Vignette & Invocation
+        const topShade = ctx.createLinearGradient(0, 0, 0, 260);
+        topShade.addColorStop(0, 'rgba(28, 12, 4, 0.72)');
+        topShade.addColorStop(1, 'rgba(28, 12, 4, 0)');
+        ctx.fillStyle = topShade;
+        ctx.fillRect(0, 0, CANVAS_WIDTH, 260);
+
+        drawCenteredTextLines(
+          ctx,
+          ['🙏  ॥ श्री गणेशाय नमः ॥  🙏'],
+          CANVAS_WIDTH / 2,
+          118,
+          44,
+          '700 34px Inter, sans-serif',
+          '#fde68a'
+        );
+
+        // 3. Smooth Dark Bottom Gradient Vignette (bottom 35%) so circular photo & golden text pop sharply
+        const bottomShade = ctx.createLinearGradient(0, CANVAS_HEIGHT * 0.62, 0, CANVAS_HEIGHT);
+        bottomShade.addColorStop(0, 'rgba(15, 7, 2, 0)');
+        bottomShade.addColorStop(0.45, 'rgba(15, 7, 2, 0.58)');
+        bottomShade.addColorStop(1, 'rgba(15, 7, 2, 0.92)');
+        ctx.fillStyle = bottomShade;
+        ctx.fillRect(0, CANVAS_HEIGHT * 0.62, CANVAS_WIDTH, CANVAS_HEIGHT * 0.38);
+
+        // 4. Ornate Golden Temple Border Frame
+        drawTempleFrame(ctx, '#fbbf24');
+
+        // 5. Personalized User Photo + Name Banner at Bottom
+        drawUserOverlayBanner(ctx, 'rgba(41, 15, 5, 0.88)', '#fbbf24');
+      }
+
+      /**
+       * Helper: Draw sacred geometric mandala & sunbeams behind the deity emblem (Offline fallback)
+       */
+      function drawSacredMandala(ctx, cx, cy, outerRadius, accentColor, glowColor) {
+        ctx.save();
+
+        // Radial divine halo
+        const halo = ctx.createRadialGradient(cx, cy, 20, cx, cy, outerRadius * 1.45);
+        halo.addColorStop(0, glowColor);
+        halo.addColorStop(0.45, 'rgba(253, 224, 71, 0.25)');
+        halo.addColorStop(1, 'rgba(253, 224, 71, 0)');
+        ctx.fillStyle = halo;
+        ctx.beginPath();
+        ctx.arc(cx, cy, outerRadius * 1.45, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Sunburst rays
+        ctx.strokeStyle = 'rgba(255, 251, 235, 0.16)';
+        ctx.lineWidth = 4;
+        const rayCount = 24;
+        for (let i = 0; i < rayCount; i++) {
+          const angle = (i * Math.PI * 2) / rayCount;
+          ctx.beginPath();
+          ctx.moveTo(cx + Math.cos(angle) * (outerRadius * 0.45), cy + Math.sin(angle) * (outerRadius * 0.45));
+          ctx.lineTo(cx + Math.cos(angle) * (outerRadius * 1.32), cy + Math.sin(angle) * (outerRadius * 1.32));
+          ctx.stroke();
+        }
+
+        // Lotus petals ring
+        const petals = 16;
+        ctx.strokeStyle = accentColor;
+        ctx.lineWidth = 4;
+        for (let i = 0; i < petals; i++) {
+          const angle = (i * Math.PI * 2) / petals;
+          ctx.save();
+          ctx.translate(cx, cy);
+          ctx.rotate(angle);
+          ctx.beginPath();
+          ctx.moveTo(0, -outerRadius * 0.62);
+          ctx.quadraticCurveTo(42, -outerRadius * 0.92, 0, -outerRadius * 1.05);
+          ctx.quadraticCurveTo(-42, -outerRadius * 0.92, 0, -outerRadius * 0.62);
+          ctx.stroke();
+          ctx.restore();
+        }
+
+        // Concentric ornate rings
+        ctx.strokeStyle = accentColor;
+        ctx.lineWidth = 6;
+        ctx.beginPath();
+        ctx.arc(cx, cy, outerRadius * 0.65, 0, Math.PI * 2);
+        ctx.stroke();
+
+        ctx.setLineDash([14, 10]);
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.arc(cx, cy, outerRadius * 0.74, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        ctx.restore();
+      }
+
+      /**
+       * Helper: Draw ornate golden temple arch frame around the 9:16 canvas
+       */
+      function drawTempleFrame(ctx, accentColor) {
+        ctx.save();
+        const pad = 38;
+        const w = CANVAS_WIDTH - pad * 2;
+        const h = CANVAS_HEIGHT - pad * 2;
+
+        // Outer gold border
+        ctx.strokeStyle = accentColor;
+        ctx.lineWidth = 8;
+        roundRectPath(ctx, pad, pad, w, h, 46);
+        ctx.stroke();
+
+        // Inner fine border
+        ctx.strokeStyle = 'rgba(255, 251, 235, 0.55)';
+        ctx.lineWidth = 3;
+        roundRectPath(ctx, pad + 16, pad + 16, w - 32, h - 32, 34);
+        ctx.stroke();
+
+        // Decorative corner medallions
+        const corners = [
+          [pad + 26, pad + 26],
+          [CANVAS_WIDTH - pad - 26, pad + 26],
+          [pad + 26, CANVAS_HEIGHT - pad - 26],
+          [CANVAS_WIDTH - pad - 26, CANVAS_HEIGHT - pad - 26]
+        ];
+        ctx.fillStyle = accentColor;
+        corners.forEach(([x, y]) => {
+          ctx.beginPath();
+          ctx.arc(x, y, 12, 0, Math.PI * 2);
+          ctx.fill();
+        });
+
+        // Top decorative toran garland dots
+        const garlandDots = 11;
+        for (let i = 1; i < garlandDots; i++) {
+          const gx = pad + (w / garlandDots) * i;
+          const sag = Math.sin((i / garlandDots) * Math.PI) * 34;
+          const gy = pad + 24 + sag;
+          ctx.fillStyle = i % 2 === 0 ? '#fde047' : '#fb923c';
+          ctx.beginPath();
+          ctx.arc(gx, gy, 10, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        ctx.restore();
+      }
+
+      /**
+       * Helper: Wrap & draw centered devotional shloka / blessing lines
+       */
+      function drawCenteredTextLines(ctx, lines, centerX, startY, lineHeight, fontSpec, fillStyle) {
+        ctx.save();
+        ctx.font = fontSpec;
+        ctx.fillStyle = fillStyle;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.65)';
+        ctx.shadowBlur = 12;
+        ctx.shadowOffsetY = 4;
+
+        lines.forEach((line, idx) => {
+          ctx.fillText(line, centerX, startY + idx * lineHeight, CANVAS_WIDTH - 160);
+        });
+        ctx.restore();
+      }
+
+      /**
+       * Core Compositor: Draws the personalized bottom banner with circular profile photo & name
+       */
+      function drawUserOverlayBanner(ctx, cardTint, accentColor) {
+        ctx.save();
+
+        const bannerX = 72;
+        const bannerY = 1480;
+        const bannerW = CANVAS_WIDTH - 144;
+        const bannerH = 330;
+
+        // Translucent rich devotional card background
+        ctx.fillStyle = cardTint;
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.55)';
+        ctx.shadowBlur = 28;
+        ctx.shadowOffsetY = 10;
+        roundRectPath(ctx, bannerX, bannerY, bannerW, bannerH, 44);
+        ctx.fill();
+
+        // Reset shadow for crisp border
+        ctx.shadowBlur = 0;
+        ctx.shadowOffsetY = 0;
+        ctx.strokeStyle = accentColor;
+        ctx.lineWidth = 6;
+        roundRectPath(ctx, bannerX, bannerY, bannerW, bannerH, 44);
+        ctx.stroke();
+
+        // Circular Avatar on the left side of the banner
+        const avatarRadius = 112;
+        const avatarCx = bannerX + 150;
+        const avatarCy = bannerY + bannerH / 2;
+
+        // Gold halo ring behind avatar
+        ctx.beginPath();
+        ctx.arc(avatarCx, avatarCy, avatarRadius + 10, 0, Math.PI * 2);
+        ctx.fillStyle = accentColor;
+        ctx.fill();
+
+        // Clip circle for photo or fallback emblem
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(avatarCx, avatarCy, avatarRadius, 0, Math.PI * 2);
+        ctx.closePath();
+        ctx.clip();
+
+        if (state.userImageObj) {
+          ctx.drawImage(
+            state.userImageObj,
+            avatarCx - avatarRadius,
+            avatarCy - avatarRadius,
+            avatarRadius * 2,
+            avatarRadius * 2
+          );
+        } else {
+          // Warm saffron monogram fallback when user hasn't uploaded a photo yet
+          const fallbackGrad = ctx.createLinearGradient(
+            avatarCx - avatarRadius,
+            avatarCy - avatarRadius,
+            avatarCx + avatarRadius,
+            avatarCy + avatarRadius
+          );
+          fallbackGrad.addColorStop(0, '#fed7aa');
+          fallbackGrad.addColorStop(1, '#fb923c');
+          ctx.fillStyle = fallbackGrad;
+          ctx.fillRect(
+            avatarCx - avatarRadius,
+            avatarCy - avatarRadius,
+            avatarRadius * 2,
+            avatarRadius * 2
+          );
+
+          ctx.fillStyle = '#7c2d12';
+          ctx.font = 'bold 96px Inter, sans-serif';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          const initial = state.name.trim() ? state.name.trim().charAt(0).toUpperCase() : '🙏';
+          ctx.fillText(initial, avatarCx, avatarCy + 4);
+        }
+        ctx.restore();
+
+        // User Name & Blessing Text on the right of the avatar
+        const textStartX = avatarCx + avatarRadius + 42;
+        const maxTextWidth = bannerX + bannerW - textStartX - 36;
+
+        const displayName = state.name.trim() || 'Your Name';
+        const displaySub = state.subtitle.trim() || 'Jai Shri Ram 🙏';
+
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'middle';
+
+        // Small label above name
+        ctx.fillStyle = accentColor;
+        ctx.font = '700 28px Inter, sans-serif';
+        ctx.fillText('शुभकामनाएं • BEST WISHES', textStartX, avatarCy - 66, maxTextWidth);
+
+        // Bold High-Contrast Name
+        ctx.fillStyle = '#ffffff';
+        ctx.font = '800 54px Inter, sans-serif';
+        ctx.shadowColor = 'rgba(0,0,0,0.6)';
+        ctx.shadowBlur = 8;
+        ctx.fillText(displayName, textStartX, avatarCy + 2, maxTextWidth);
+
+        // Greeting / Subtitle underneath
+        ctx.shadowBlur = 0;
+        ctx.fillStyle = '#fde68a';
+        ctx.font = '600 36px Inter, sans-serif';
+        ctx.fillText(displaySub, textStartX, avatarCy + 68, maxTextWidth);
+
+        ctx.restore();
+      }
+
+      /**
+       * Render a built-in fallback devotional template onto its 1080x1920 canvas
+       */
+      function renderFallbackTemplateCanvas(canvasId, tpl) {
+        const canvas = document.getElementById(canvasId);
+        if (!canvas) return;
+        canvas.width = CANVAS_WIDTH;
+        canvas.height = CANVAS_HEIGHT;
+        const ctx = canvas.getContext('2d');
+
+        // 1. Rich Background Gradient
+        const bgGrad = ctx.createLinearGradient(0, 0, 0, CANVAS_HEIGHT);
+        bgGrad.addColorStop(0, tpl.palette.bgTop);
+        bgGrad.addColorStop(0.5, tpl.palette.bgMid);
+        bgGrad.addColorStop(1, tpl.palette.bgBottom);
+        ctx.fillStyle = bgGrad;
+        ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+
+        // 2. Sacred Mandala & Halo in upper-middle focal area
+        const mandalaY = 560;
+        drawSacredMandala(ctx, CANVAS_WIDTH / 2, mandalaY, 310, tpl.palette.accent, tpl.palette.glow);
+
+        // 3. Central Sacred Emblem inside Mandala
+        ctx.save();
+        ctx.fillStyle = '#fffbeb';
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+        ctx.shadowBlur = 24;
+        ctx.font = 'bold 210px "Yatra One", Georgia, serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(tpl.symbol, CANVAS_WIDTH / 2, mandalaY + 12);
+        ctx.restore();
+
+        // 4. Top Auspicious Invocation
+        drawCenteredTextLines(
+          ctx,
+          [`${tpl.subSymbol}  श्री गणेशाय नमः  ${tpl.subSymbol}`],
+          CANVAS_WIDTH / 2,
+          155,
+          44,
+          '700 36px Inter, sans-serif',
+          tpl.palette.accent
+        );
+
+        // 5. Main Deity Title (Hindi + English)
+        drawCenteredTextLines(
+          ctx,
+          [tpl.deityHindi],
+          CANVAS_WIDTH / 2,
+          965,
+          90,
+          '400 84px "Yatra One", Georgia, serif',
+          '#ffffff'
+        );
+
+        drawCenteredTextLines(
+          ctx,
+          [tpl.deityEnglish],
+          CANVAS_WIDTH / 2,
+          1055,
+          50,
+          '800 38px Inter, sans-serif',
+          tpl.palette.accent
+        );
+
+        // 6. Decorative Divider Line
+        ctx.save();
+        ctx.strokeStyle = tpl.palette.accent;
+        ctx.lineWidth = 4;
+        ctx.beginPath();
+        ctx.moveTo(260, 1115);
+        ctx.lineTo(CANVAS_WIDTH - 260, 1115);
+        ctx.stroke();
+        ctx.restore();
+
+        // 7. Devotional Shloka & Blessing Verse
+        drawCenteredTextLines(
+          ctx,
+          tpl.blessingLines,
+          CANVAS_WIDTH / 2,
+          1195,
+          64,
+          '600 40px Inter, sans-serif',
+          '#fffbeb'
+        );
+
+        // 8. Ornate Golden Temple Border Frame
+        drawTempleFrame(ctx, tpl.palette.accent);
+
+        // 9. Personalized User Photo + Name Banner at Bottom
+        drawUserOverlayBanner(ctx, tpl.palette.cardTint, tpl.palette.accent);
+      }
+
+      /**
+       * Render User's Custom Uploaded Background Photo with Golden Frame & Name Overlay
+       */
+      function renderCustomBgCanvas() {
+        if (!state.customBgImageObj) return;
+        renderPhotoCardCanvas('canvas-custom', state.customBgImageObj);
+      }
+
+      /**
+       * Re-render all visible canvases whenever Name, Subtitle, or Photo updates
+       */
+      function renderAllCanvases() {
+        state.fetchedCards.forEach((item) => {
+          const canvasId = `canvas-${item.id}`;
+          if (item.isFallback) {
+            renderFallbackTemplateCanvas(canvasId, item.fallbackData);
+          } else {
+            renderPhotoCardCanvas(canvasId, item.imgObj);
+          }
+        });
+        if (state.customBgImageObj) {
+          renderCustomBgCanvas();
+        }
+      }
+
+      /**
+       * Convert a Canvas element into a PNG Blob
+       */
+      function canvasToBlob(canvas) {
+        return new Promise((resolve, reject) => {
+          canvas.toBlob((blob) => {
+            if (blob) resolve(blob);
+            else reject(new Error('Failed to export canvas image'));
+          }, 'image/png', 0.95);
+        });
+      }
+
+      /**
+       * Trigger direct PNG download fallback
+       */
+      function triggerDownload(blob, filename) {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(url), 5000);
+      }
+
+      /**
+       * Share Canvas directly to WhatsApp using Web Share API Level 2 (File sharing)
+       * with graceful fallback for desktop browsers.
+       */
+      async function handleShareCanvas(canvasId, title) {
+        const canvas = document.getElementById(canvasId);
+        if (!canvas) return;
+
+        try {
+          const blob = await canvasToBlob(canvas);
+          const filename = `${canvasId.replace('canvas-', '')}-status.png`;
+          const file = new File([blob], filename, { type: 'image/png' });
+
+          // Check native mobile file sharing support (Android Chrome / iOS Safari)
+          if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            await navigator.share({
+              files: [file],
+              title: title || 'Devotional WhatsApp Status',
+              text: `${state.subtitle || 'Jai Shri Ram 🙏'} - ${state.name || ''}`.trim()
+            });
+            showToast('Shared! Select WhatsApp -> My Status to post.', '🎉');
+          } else {
+            // Desktop / unsupported browser graceful fallback: download image + guide user
+            triggerDownload(blob, filename);
+            showToast(
+              'Photo saved to your device! Open WhatsApp and upload this saved photo to your Status.',
+              '⬇️',
+              6000
+            );
+          }
+        } catch (err) {
+          // User cancelling the share sheet throws AbortError — ignore silently
+          if (err && err.name !== 'AbortError') {
+            console.error('Share error:', err);
+            showToast('Could not open share menu. Try tapping "Save Photo" instead.', '⚠️');
+          }
+        }
+      }
+
+      /**
+       * Save high-res PNG to device gallery
+       */
+      async function handleDownloadCanvas(canvasId, filename) {
+        const canvas = document.getElementById(canvasId);
+        if (!canvas) return;
+
+        try {
+          const blob = await canvasToBlob(canvas);
+          triggerDownload(blob, filename || 'status-photo.png');
+          showToast('Status photo saved to your gallery!', '✅');
+        } catch (err) {
+          console.error('Download error:', err);
+          showToast('Unable to save photo. Please try again.', '⚠️');
+        }
+      }
+
+      /**
+       * Wire up all interactive UI listeners
+       */
+      function bindEvents() {
+        // Real-time Name input
+        els.userNameInput.addEventListener('input', (e) => {
+          state.name = e.target.value;
+          persistProfile();
+          updateProfileUI();
+          renderAllCanvases();
+        });
+
+        // Real-time Subtitle input
+        els.userSubtitleInput.addEventListener('input', (e) => {
+          state.subtitle = e.target.value;
+          persistProfile();
+          updateProfileUI();
+          renderAllCanvases();
+        });
+
+        // Quick preset greeting buttons
+        document.querySelectorAll('.preset-pill').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            const preset = btn.getAttribute('data-preset');
+            state.subtitle = preset;
+            els.userSubtitleInput.value = preset;
+            persistProfile();
+            updateProfileUI();
+            renderAllCanvases();
+            showToast(`Greeting set to "${preset}"`, '🙏', 2200);
+          });
+        });
+
+        // Profile Photo upload
+        els.userPhotoInput.addEventListener('change', (e) => {
+          const file = e.target.files && e.target.files[0];
+          if (file) processUploadedAvatar(file);
+        });
+
+        // Remove Profile Photo
+        els.removePhotoBtn.addEventListener('click', () => {
+          state.photoDataUrl = null;
+          state.userImageObj = null;
+          els.userPhotoInput.value = '';
+          persistProfile();
+          updateProfileUI();
+          renderAllCanvases();
+          showToast('Profile photo removed.', '🗑️', 2500);
+        });
+
+        // Collapse / Expand Profile card
+        els.toggleProfileBtn.addEventListener('click', () => {
+          const isCurrentlyHidden = els.profileFormBody.classList.contains('hidden');
+          setProfileCollapsed(!isCurrentlyHidden);
+        });
+        els.expandProfileBtn.addEventListener('click', () => setProfileCollapsed(false));
+        els.doneProfileBtn.addEventListener('click', () => setProfileCollapsed(true));
+
+        // Live Internet Search Form
+        els.internetSearchForm.addEventListener('submit', (e) => {
+          e.preventDefault();
+          const query = els.customSearchInput.value.trim();
+          state.customQuery = query;
+          state.searchOffset = 0;
+          buildCategoryTabs();
+          fetchAndRenderInternetPhotos(false);
+        });
+
+        // Load More / Refresh Photos buttons
+        els.refreshMoreBtn.addEventListener('click', () => {
+          fetchAndRenderInternetPhotos(false);
+        });
+        els.bottomLoadMoreBtn.addEventListener('click', () => {
+          fetchAndRenderInternetPhotos(true);
+        });
+        els.retryFetchBtn.addEventListener('click', () => {
+          state.searchOffset = 0;
+          fetchAndRenderInternetPhotos(false);
+        });
+
+        // Custom Background Deity Photo Upload
+        els.customBgInput.addEventListener('change', (e) => {
+          const file = e.target.files && e.target.files[0];
+          if (!file) return;
+
+          const reader = new FileReader();
+          reader.onload = function (ev) {
+            const img = new Image();
+            img.onload = function () {
+              state.customBgDataUrl = ev.target.result;
+              state.customBgImageObj = img;
+              els.customTemplateWrapper.classList.remove('hidden');
+              renderCustomBgCanvas();
+              els.customTemplateWrapper.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              showToast('Your custom photo is ready with your name & frame!', '✨');
+            };
+            img.src = ev.target.result;
+          };
+          reader.readAsDataURL(file);
+        });
+
+        // Clear Custom Background Photo
+        els.clearCustomBgBtn.addEventListener('click', () => {
+          state.customBgDataUrl = null;
+          state.customBgImageObj = null;
+          els.customBgInput.value = '';
+          els.customTemplateWrapper.classList.add('hidden');
+        });
+
+        // Event delegation for Share & Download buttons across all cards
+        document.addEventListener('click', (e) => {
+          const shareBtn = e.target.closest('.share-btn');
+          if (shareBtn) {
+            const canvasId = shareBtn.getAttribute('data-share-canvas');
+            const title = shareBtn.getAttribute('data-title');
+            handleShareCanvas(canvasId, title);
+            return;
+          }
+
+          const downloadBtn = e.target.closest('.download-btn');
+          if (downloadBtn) {
+            const canvasId = downloadBtn.getAttribute('data-download-canvas');
+            const filename = downloadBtn.getAttribute('data-filename');
+            handleDownloadCanvas(canvasId, filename);
+          }
+        });
+
+        // Home Screen Install Help Modal
+        els.installHelpBtn.addEventListener('click', () => {
+          els.installModal.classList.remove('hidden');
+          els.installModal.classList.add('flex');
+        });
+        const closeInstallModal = () => {
+          els.installModal.classList.add('hidden');
+          els.installModal.classList.remove('flex');
+        };
+        els.closeInstallModalBtn.addEventListener('click', closeInstallModal);
+        els.gotItInstallBtn.addEventListener('click', closeInstallModal);
+        els.installModal.addEventListener('click', (e) => {
+          if (e.target === els.installModal) closeInstallModal();
+        });
+
+        // Optional Pixabay API Settings Modal
+        els.apiSettingsBtn.addEventListener('click', () => {
+          els.apiSettingsModal.classList.remove('hidden');
+          els.apiSettingsModal.classList.add('flex');
+        });
+        const closeApiModal = () => {
+          els.apiSettingsModal.classList.add('hidden');
+          els.apiSettingsModal.classList.remove('flex');
+        };
+        els.closeApiModalBtn.addEventListener('click', closeApiModal);
+        els.apiSettingsModal.addEventListener('click', (e) => {
+          if (e.target === els.apiSettingsModal) closeApiModal();
+        });
+        els.saveApiKeyBtn.addEventListener('click', () => {
+          state.pixabayKey = els.pixabayKeyInput.value.trim();
+          try {
+            if (state.pixabayKey) {
+              localStorage.setItem(STORAGE_KEYS.PIXABAY_KEY, state.pixabayKey);
+            } else {
+              localStorage.removeItem(STORAGE_KEYS.PIXABAY_KEY);
+            }
+          } catch (_) {}
+          closeApiModal();
+          state.searchOffset = 0;
+          fetchAndRenderInternetPhotos(false);
+          showToast('Photo source updated! Fetching fresh photos...', '⚙️');
+        });
+        els.clearApiKeyBtn.addEventListener('click', () => {
+          state.pixabayKey = '';
+          els.pixabayKeyInput.value = '';
+          try {
+            localStorage.removeItem(STORAGE_KEYS.PIXABAY_KEY);
+          } catch (_) {}
+          showToast('Cleared optional API key. Using Wikimedia Commons.', '✅');
+        });
+      }
+
+      /**
+       * Initialize App once fonts and DOM are ready
+       */
+      window.addEventListener('DOMContentLoaded', () => {
+        setupInlinePwaManifest();
+        loadSavedProfile();
+
+        // Set Day-of-the-Week Special banner & initial active tab
+        const todayCfg = getTodayDeityConfig();
+        els.daySpecialSubtitle.textContent = todayCfg.bannerText;
+        state.activeCategoryId = 'today';
+
+        buildCategoryTabs();
+        bindEvents();
+
+        // Fetch live devotional artwork immediately on load
+        fetchAndRenderInternetPhotos(false);
+
+        // Re-render once Google Fonts finish loading so Devanagari & display typography render sharply
+        if (document.fonts && document.fonts.ready) {
+          document.fonts.ready.then(() => {
+            renderAllCanvases();
+          });
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
