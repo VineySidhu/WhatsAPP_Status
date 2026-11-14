@@ -39,15 +39,12 @@
         <span class="text-2xl">🪔</span>
         <div>
           <h1 class="font-devotional font-bold text-lg tracking-wide leading-tight">Bhakti Status</h1>
-          <p class="text-[11px] text-amber-200 leading-none">Daily Devotional WhatsApp Status</p>
+          <p class="text-[11px] text-amber-200 leading-none">HD Devotional WhatsApp Status</p>
         </div>
       </div>
       <div class="flex items-center gap-2">
-        <button id="refreshBtn" onclick="forceReloadPhotos()" title="Load fresh photos" class="text-xs bg-white/15 hover:bg-white/25 active:scale-95 transition px-3 py-1.5 rounded-full font-semibold flex items-center gap-1">
-          <span>🔄</span> Refresh
-        </button>
-        <button onclick="openSettings()" title="Photo Source Settings" class="text-xs bg-white/15 hover:bg-white/25 active:scale-95 transition px-2.5 py-1.5 rounded-full font-semibold">
-          ⚙️
+        <button id="refreshBtn" onclick="forceReloadPhotos()" title="Load fresh photos" class="text-xs bg-white/15 hover:bg-white/25 active:scale-95 transition px-3.5 py-1.5 rounded-full font-semibold flex items-center gap-1.5">
+          <span>🔄</span> New Photos
         </button>
       </div>
     </div>
@@ -147,91 +144,72 @@
     <!-- Load More Button -->
     <div class="text-center pt-2 pb-6">
       <button id="loadMoreBtn" onclick="loadMorePhotos()" class="bg-white hover:bg-amber-50 text-amber-900 border-2 border-amber-400 font-bold text-sm px-6 py-3 rounded-2xl shadow-sm active:scale-95 transition">
-        ✨ Show More Fresh Photos
+        ✨ Show More HD Photos
       </button>
     </div>
   </main>
 
-  <!-- Optional Settings Modal (Pixabay API Key) -->
-  <div id="settingsModal" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl max-w-md w-full p-5 space-y-4 shadow-xl">
-      <div class="flex items-center justify-between">
-        <h3 class="font-bold text-lg text-stone-900">Photo Source Settings</h3>
-        <button onclick="closeSettings()" class="text-stone-400 hover:text-stone-700 text-xl font-bold px-2">✕</button>
-      </div>
-      <p class="text-xs text-stone-600 leading-relaxed">
-        This app automatically searches <strong>Wikimedia Commons & Wikipedia</strong> (free, no API key needed). If you also have a free <strong>Pixabay API Key</strong>, paste it below for extra vertical artwork.
-      </p>
-      <div>
-        <label class="block text-xs font-bold text-stone-700 mb-1">Optional Pixabay API Key</label>
-        <input id="pixabayKeyInput" type="text" placeholder="Paste Pixabay API key (optional)..." class="w-full px-3 py-2 rounded-xl border border-stone-300 text-sm outline-none focus:border-amber-600" />
-      </div>
-      <div class="flex justify-end gap-2 pt-2">
-        <button onclick="closeSettings()" class="px-4 py-2 rounded-xl text-xs font-bold text-stone-600 hover:bg-stone-100">Cancel</button>
-        <button onclick="saveSettings()" class="px-4 py-2 rounded-xl text-xs font-bold bg-amber-700 text-white hover:bg-amber-800">Save & Reload</button>
-      </div>
-    </div>
-  </div>
-
   <script>
     // ==========================================
-    // 1. CONFIGURATION & DAY-OF-WEEK DEITIES
+    // 1. PRE-CONFIGURED PIXABAY HD ENGINE & DEITIES
     // ==========================================
+    const DEFAULT_PIXABAY_KEY = '58610013-08576450dab30642fdaf5da97';
+
     const CATEGORIES = [
       {
         id: 'today',
         label: "✨ Today's Special",
-        queries: [],
+        pixabayQueries: [],
         wmCategories: [],
         subtitle: 'Subh Prabhat • God Bless You'
       },
       {
         id: 'hanuman',
         label: '🚩 Hanuman Ji',
-        queries: ['Hanuman', 'Panchamukhi Hanuman', 'Anjaneya'],
-        wmCategories: ['Category:Paintings_of_Hanuman', 'Category:Hanuman'],
+        pixabayQueries: ['Hanuman', 'Lord Hanuman', 'Hindu temple god'],
+        wmCategories: ['Category:Paintings_of_Hanuman'],
         subtitle: 'Jai Shri Ram • Jai Bajrangbali'
       },
       {
         id: 'mata',
         label: '🌺 Mata Rani',
-        queries: ['Durga', 'Lakshmi', 'Saraswati', 'Kali'],
+        pixabayQueries: ['Durga', 'Goddess Durga', 'Lakshmi', 'Navratri'],
         wmCategories: ['Category:Paintings_of_Durga', 'Category:Paintings_of_Lakshmi'],
         subtitle: 'Jai Mata Di • Subh Navratri'
       },
       {
         id: 'shiv',
         label: '🔱 Shiv Ji',
-        queries: ['Shiva', 'Nataraja', 'Shiva Parvati'],
-        wmCategories: ['Category:Paintings_of_Shiva', 'Category:Shiva'],
+        pixabayQueries: ['Shiva', 'Lord Shiva', 'Mahadev'],
+        wmCategories: ['Category:Paintings_of_Shiva'],
         subtitle: 'Har Har Mahadev • Om Namah Shivaya'
       },
       {
         id: 'ganesh',
         label: '🐘 Ganesh Ji',
-        queries: ['Ganesha', 'Siddhivinayak', 'Ganapati'],
-        wmCategories: ['Category:Paintings_of_Ganesha', 'Category:Ganesha'],
+        pixabayQueries: ['Ganesha', 'Lord Ganesha', 'Ganpati'],
+        wmCategories: ['Category:Paintings_of_Ganesha'],
         subtitle: 'Ganpati Bappa Morya • Shubh Labh'
       },
       {
         id: 'krishna',
         label: '🦚 Krishna Ji',
-        queries: ['Krishna', 'Radha Krishna', 'Bala Krishna'],
-        wmCategories: ['Category:Paintings_of_Krishna', 'Category:Radha_Krishna'],
+        pixabayQueries: ['Krishna', 'Radha Krishna', 'Lord Krishna'],
+        wmCategories: ['Category:Paintings_of_Krishna'],
         subtitle: 'Jai Shri Krishna • Radhe Radhe'
       },
       {
         id: 'guru',
         label: '☬ Waheguru Ji',
-        queries: ['Guru Nanak', 'Harmandir Sahib', 'Golden Temple Amritsar'],
-        wmCategories: ['Category:Paintings_of_Guru_Nanak', 'Category:Harmandir_Sahib'],
+        pixabayQueries: ['Golden Temple Amritsar', 'Sikh temple', 'Guru Nanak'],
+        wmCategories: ['Category:Harmandir_Sahib', 'Category:Paintings_of_Guru_Nanak'],
         subtitle: 'Satnam Sri Waheguru Ji'
       },
       {
         id: 'surya',
         label: '☀️ Morning Blessings',
-        queries: ['Surya', 'Diwali diya', 'Hindu temple sunrise'],
-        wmCategories: ['Category:Surya', 'Category:Diwali'],
+        pixabayQueries: ['Diwali diya', 'Hindu temple sunrise', 'Lotus flower sunrise'],
+        wmCategories: ['Category:Diwali'],
         subtitle: 'Suprabhat • Have a Blessed Day'
       }
     ];
@@ -252,9 +230,8 @@
       avatarDataUrl: '',
       activeCategory: 'today',
       customSearchQuery: '',
-      pageOffset: 0,
-      photos: [],
-      pixabayKey: ''
+      page: 1,
+      photos: []
     };
 
     // ==========================================
@@ -274,7 +251,6 @@
         state.name = localStorage.getItem('bhakti_name') || '';
         state.subtitle = localStorage.getItem('bhakti_subtitle') || '';
         state.avatarDataUrl = localStorage.getItem('bhakti_avatar') || '';
-        state.pixabayKey = localStorage.getItem('bhakti_pixabay_key') || '';
       } catch (e) {}
     }
 
@@ -360,7 +336,7 @@
         const img = new Image();
         img.onload = function() {
           const canvas = document.createElement('canvas');
-          const size = 320;
+          const size = 360;
           canvas.width = size;
           canvas.height = size;
           const ctx = canvas.getContext('2d');
@@ -368,7 +344,7 @@
           const sx = (img.width - minSide) / 2;
           const sy = (img.height - minSide) / 2;
           ctx.drawImage(img, sx, sy, minSide, minSide, 0, 0, size, size);
-          state.avatarDataUrl = canvas.toDataURL('image/jpeg', 0.85);
+          state.avatarDataUrl = canvas.toDataURL('image/jpeg', 0.9);
           try {
             localStorage.setItem('bhakti_avatar', state.avatarDataUrl);
           } catch (err) {}
@@ -425,7 +401,7 @@
         btn.onclick = () => {
           state.activeCategory = cat.id;
           state.customSearchQuery = '';
-          state.pageOffset = 0;
+          state.page = 1;
           document.getElementById('searchInput').value = '';
           renderCategoryBar();
           fetchPhotos(true);
@@ -439,23 +415,23 @@
       const q = document.getElementById('searchInput').value.trim();
       if (!q) return;
       state.customSearchQuery = q;
-      state.pageOffset = 0;
+      state.page = 1;
       renderCategoryBar();
       fetchPhotos(true);
     }
 
     function forceReloadPhotos() {
-      state.pageOffset += 6;
+      state.page += 1;
       fetchPhotos(true);
     }
 
     function loadMorePhotos() {
-      state.pageOffset += 6;
+      state.page += 1;
       fetchPhotos(false);
     }
 
     // ==========================================
-    // 4. LIVE INTERNET IMAGE SEARCH (MULTI-SOURCE)
+    // 4. HD IMAGE FETCH ENGINE (PIXABAY + FALLBACK)
     // ==========================================
     function showBanner(msg) {
       const el = document.getElementById('statusBanner');
@@ -472,81 +448,94 @@
       if (reset) {
         state.photos = [];
         container.innerHTML = '';
-        showBanner('Loading fresh devotional artwork...');
+        showBanner('Loading HD devotional artwork...');
       } else {
-        showBanner('Loading more photos...');
+        showBanner('Loading more HD photos...');
       }
 
       const catObj = getActiveCategoryObj();
-      const queryList = state.customSearchQuery
+      const queries = state.customSearchQuery
         ? [state.customSearchQuery, `${state.customSearchQuery} Hindu`]
-        : catObj.queries;
+        : catObj.pixabayQueries;
 
       let fetched = [];
 
-      // Source 1: Optional Pixabay API key
-      if (state.pixabayKey) {
+      // 1. Query Pixabay with vertical orientation first (best fit for 9:16 WhatsApp Status)
+      for (let i = 0; i < queries.length && fetched.length < 6; i++) {
         try {
-          const px = await queryPixabay(queryList[0], Math.floor(state.pageOffset / 6) + 1);
-          fetched = fetched.concat(px);
+          const verticalHits = await queryPixabay(queries[i], state.page, 'vertical');
+          verticalHits.forEach(item => {
+            if (!fetched.some(x => x.url === item.url)) fetched.push(item);
+          });
         } catch (err) {}
       }
 
-      // Source 2: Curated Wikimedia Commons Category Members (clean paintings & temple photos)
-      if (!state.customSearchQuery && catObj.wmCategories) {
+      // 2. If fewer than 6 vertical images exist for that deity, include all orientations (square/landscape center-cropped cleanly)
+      for (let i = 0; i < queries.length && fetched.length < 6; i++) {
+        try {
+          const anyHits = await queryPixabay(queries[i], state.page, 'all');
+          anyHits.forEach(item => {
+            if (!fetched.some(x => x.url === item.url)) fetched.push(item);
+          });
+        } catch (err) {}
+      }
+
+      // 3. Secondary fallback: High-res Wikimedia paintings only if Pixabay returned < 4 results
+      if (fetched.length < 4 && catObj.wmCategories) {
         for (const wmCat of catObj.wmCategories) {
           if (fetched.length >= 6) break;
           try {
-            const catItems = await queryWikimediaCategory(wmCat);
-            // Rotate slice by pageOffset so Refresh / Load More shows fresh items
-            const sliced = rotateAndSlice(catItems, state.pageOffset, 6);
-            sliced.forEach(item => {
+            const wmItems = await queryWikimediaCategory(wmCat);
+            wmItems.forEach(item => {
               if (!fetched.some(x => x.url === item.url)) fetched.push(item);
             });
           } catch (err) {}
         }
       }
 
-      // Source 3: Wikimedia Commons Search API (for custom search or extra items)
-      for (let i = 0; i < queryList.length && fetched.length < 6; i++) {
-        try {
-          const wmSearch = await queryWikimediaSearch(queryList[i], state.pageOffset);
-          wmSearch.forEach(item => {
-            if (!fetched.some(x => x.url === item.url)) fetched.push(item);
-          });
-        } catch (err) {}
-      }
-
-      // Source 4: Wikipedia PageImages API (ultra-fast fallback)
-      if (fetched.length < 4) {
-        try {
-          const wpItems = await queryWikipediaImages(queryList[0]);
-          wpItems.forEach(item => {
-            if (!fetched.some(x => x.url === item.url)) fetched.push(item);
-          });
-        } catch (err) {}
-      }
-
-      // Source 5: Guaranteed built-in devotional cards so feed is NEVER blank
+      // 4. Built-in artistic fallback if completely offline
       if (fetched.length === 0 && reset) {
         fetched = buildFallbackTemplates(catObj);
-        showBanner('Showing built-in devotional cards.');
+        showBanner('Showing built-in devotional cards (offline mode).');
       } else {
         hideBanner();
       }
 
+      const sliceToRender = fetched.slice(0, 6);
       const startIndex = state.photos.length;
-      state.photos = state.photos.concat(fetched);
-      fetched.forEach((photo, idx) => {
+      state.photos = state.photos.concat(sliceToRender);
+      sliceToRender.forEach((photo, idx) => {
         renderPhotoCard(photo, startIndex + idx);
       });
     }
 
-    function rotateAndSlice(arr, offset, count) {
-      if (!arr.length) return [];
-      const start = offset % arr.length;
-      const rotated = arr.slice(start).concat(arr.slice(0, start));
-      return rotated.slice(0, count);
+    async function queryPixabay(searchTerm, page = 1, orientation = 'vertical') {
+      const endpoint = new URL('https://pixabay.com/api/');
+      endpoint.searchParams.set('key', DEFAULT_PIXABAY_KEY);
+      endpoint.searchParams.set('q', searchTerm);
+      endpoint.searchParams.set('image_type', 'all');
+      endpoint.searchParams.set('orientation', orientation);
+      endpoint.searchParams.set('safesearch', 'true');
+      endpoint.searchParams.set('order', 'popular');
+      endpoint.searchParams.set('per_page', '12');
+      endpoint.searchParams.set('page', String(page));
+
+      const res = await fetch(endpoint.toString());
+      if (!res.ok) return [];
+      const data = await res.json();
+      if (!data.hits) return [];
+
+      return data.hits.map(hit => {
+        const rawTag = (hit.tags || searchTerm).split(',')[0].trim();
+        const niceTitle = rawTag.charAt(0).toUpperCase() + rawTag.slice(1);
+        return {
+          url: hit.largeImageURL || hit.webformatURL,
+          fallbackUrl: hit.webformatURL,
+          title: niceTitle,
+          source: 'HD Art',
+          isFallback: false
+        };
+      });
     }
 
     async function queryWikimediaCategory(categoryTitle) {
@@ -557,112 +546,39 @@
       endpoint.searchParams.set('generator', 'categorymembers');
       endpoint.searchParams.set('gcmtitle', categoryTitle);
       endpoint.searchParams.set('gcmtype', 'file');
-      endpoint.searchParams.set('gcmlimit', '24');
+      endpoint.searchParams.set('gcmlimit', '15');
       endpoint.searchParams.set('prop', 'imageinfo');
       endpoint.searchParams.set('iiprop', 'url|size|mime');
-      endpoint.searchParams.set('iiurlwidth', '800');
+      endpoint.searchParams.set('iiurlwidth', '1080');
 
       const res = await fetch(endpoint.toString());
       if (!res.ok) return [];
       const data = await res.json();
-      return parseWikimediaPages(data, categoryTitle.replace('Category:', '').replace(/_/g, ' '));
-    }
-
-    async function queryWikimediaSearch(searchTerm, offset = 0) {
-      const endpoint = new URL('https://commons.wikimedia.org/w/api.php');
-      endpoint.searchParams.set('action', 'query');
-      endpoint.searchParams.set('format', 'json');
-      endpoint.searchParams.set('origin', '*');
-      endpoint.searchParams.set('generator', 'search');
-      endpoint.searchParams.set('gsrnamespace', '6');
-      endpoint.searchParams.set('gsrsearch', searchTerm);
-      endpoint.searchParams.set('gsrlimit', '15');
-      endpoint.searchParams.set('gsroffset', String(offset));
-      endpoint.searchParams.set('prop', 'imageinfo');
-      endpoint.searchParams.set('iiprop', 'url|size|mime');
-      endpoint.searchParams.set('iiurlwidth', '800');
-
-      const res = await fetch(endpoint.toString());
-      if (!res.ok) return [];
-      const data = await res.json();
-      return parseWikimediaPages(data, searchTerm);
-    }
-
-    function parseWikimediaPages(data, defaultLabel) {
       if (!data.query || !data.query.pages) return [];
+
       const out = [];
       Object.values(data.query.pages).forEach(page => {
         const info = page.imageinfo && page.imageinfo[0];
         if (!info) return;
         const mime = (info.mime || '').toLowerCase();
-        if (!mime.includes('jpeg') && !mime.includes('jpg') && !mime.includes('png') && !mime.includes('webp')) return;
-        if ((info.width || 0) < 250 || (info.height || 0) < 250) return;
+        if (!mime.includes('jpeg') && !mime.includes('jpg') && !mime.includes('png')) return;
+        if ((info.width || 0) < 600 || (info.height || 0) < 600) return;
 
         const cleanTitle = (page.title || '')
           .replace(/^File:/i, '')
           .replace(/\.[^.]+$/, '')
           .replace(/[_-]+/g, ' ')
-          .slice(0, 40);
+          .slice(0, 38);
 
         out.push({
           url: info.thumburl || info.url,
           fallbackUrl: info.url,
-          title: cleanTitle || defaultLabel,
-          source: 'Wikimedia',
+          title: cleanTitle,
+          source: 'Classic',
           isFallback: false
         });
       });
       return out;
-    }
-
-    async function queryWikipediaImages(searchTerm) {
-      const endpoint = new URL('https://en.wikipedia.org/w/api.php');
-      endpoint.searchParams.set('action', 'query');
-      endpoint.searchParams.set('format', 'json');
-      endpoint.searchParams.set('origin', '*');
-      endpoint.searchParams.set('generator', 'search');
-      endpoint.searchParams.set('gsrsearch', searchTerm);
-      endpoint.searchParams.set('gsrlimit', '10');
-      endpoint.searchParams.set('prop', 'pageimages');
-      endpoint.searchParams.set('piprop', 'thumbnail');
-      endpoint.searchParams.set('pithumbsize', '800');
-
-      const res = await fetch(endpoint.toString());
-      if (!res.ok) return [];
-      const data = await res.json();
-      if (!data.query || !data.query.pages) return [];
-      const out = [];
-      Object.values(data.query.pages).forEach(page => {
-        if (page.thumbnail && page.thumbnail.source) {
-          out.push({
-            url: page.thumbnail.source,
-            title: page.title || searchTerm,
-            source: 'Wikipedia',
-            isFallback: false
-          });
-        }
-      });
-      return out.slice(0, 6);
-    }
-
-    async function queryPixabay(searchTerm, page = 1) {
-      const endpoint = new URL('https://pixabay.com/api/');
-      endpoint.searchParams.set('key', state.pixabayKey);
-      endpoint.searchParams.set('q', searchTerm);
-      endpoint.searchParams.set('image_type', 'illustration');
-      endpoint.searchParams.set('orientation', 'vertical');
-      endpoint.searchParams.set('per_page', '8');
-      endpoint.searchParams.set('page', String(page));
-
-      const res = await fetch(endpoint.toString());
-      if (!res.ok) return [];
-      const data = await res.json();
-      return (data.hits || []).map(hit => ({
-        url: hit.largeImageURL || hit.webformatURL,
-        title: (hit.tags || searchTerm).split(',')[0].trim(),
-        source: 'Pixabay',
-        isFallback: false
-      }));
     }
 
     function buildFallbackTemplates(catObj) {
@@ -736,7 +652,6 @@
       const W = canvas.width;
       const H = canvas.height;
 
-      // Render immediate artistic base so card is never blank while remote image loads
       drawFallbackArtwork(ctx, W, H, photo.palette || { top: '#7c2d12', mid: '#b45309', bot: '#290d04', symbol: '🕉️' });
       drawOverlayFrameAndStamp(ctx, W, H);
 
@@ -918,24 +833,6 @@
           alert('Image downloaded! Open WhatsApp Status and select it from your gallery.');
         }
       }
-    }
-
-    function openSettings() {
-      document.getElementById('pixabayKeyInput').value = state.pixabayKey;
-      document.getElementById('settingsModal').classList.remove('hidden');
-    }
-
-    function closeSettings() {
-      document.getElementById('settingsModal').classList.add('hidden');
-    }
-
-    function saveSettings() {
-      state.pixabayKey = document.getElementById('pixabayKeyInput').value.trim();
-      try {
-        localStorage.setItem('bhakti_pixabay_key', state.pixabayKey);
-      } catch (e) {}
-      closeSettings();
-      fetchPhotos(true);
     }
 
     function escapeHtml(str) {
