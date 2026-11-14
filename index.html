@@ -100,7 +100,7 @@
             </div>
             <div>
               <label class="block text-xs font-semibold text-stone-600 mb-1">Blessing Line</label>
-              <input id="subtitleInput" type="text" placeholder="e.g. Jai Shri Ram • Suprabhat" oninput="saveProfileFromInputs()" class="w-full px-3.5 py-2 rounded-xl border border-stone-300 focus:border-amber-600 focus:ring-2 focus:ring-amber-200 outline-none text-sm bg-amber-50/30" />
+              <input id="subtitleInput" type="text" placeholder="e.g. Jai Shri Ram • Suprabhat" oninput="saveProfileFromInputs()" class="w-full px-3.5 py-2.5 rounded-xl border border-stone-300 focus:border-amber-600 focus:ring-2 focus:ring-amber-200 outline-none text-sm bg-amber-50/30" />
             </div>
           </div>
         </div>
@@ -160,7 +160,7 @@
         <button onclick="closeSettings()" class="text-stone-400 hover:text-stone-700 text-xl font-bold px-2">✕</button>
       </div>
       <p class="text-xs text-stone-600 leading-relaxed">
-        By default, this app automatically searches <strong>Wikimedia Commons</strong> (free, no key needed). If you also have a free <strong>Pixabay API Key</strong>, paste it below to blend in additional vertical devotional photography.
+        This app automatically searches <strong>Wikimedia Commons & Wikipedia</strong> (free, no API key needed). If you also have a free <strong>Pixabay API Key</strong>, paste it below for extra vertical artwork.
       </p>
       <div>
         <label class="block text-xs font-bold text-stone-700 mb-1">Optional Pixabay API Key</label>
@@ -178,14 +178,62 @@
     // 1. CONFIGURATION & DAY-OF-WEEK DEITIES
     // ==========================================
     const CATEGORIES = [
-      { id: 'today', label: "✨ Today's Special", queries: [], subtitle: 'Subh Prabhat • God Bless You' },
-      { id: 'hanuman', label: '🚩 Hanuman Ji', queries: ['Hanuman painting', 'Lord Hanuman', 'Hanuman murti', 'Panchamukhi Hanuman'], subtitle: 'Jai Shri Ram • Jai Bajrangbali' },
-      { id: 'mata', label: '🌺 Mata Rani', queries: ['Durga painting', 'Goddess Durga', 'Kali painting', 'Lakshmi painting'], subtitle: 'Jai Mata Di • Subh Navratri' },
-      { id: 'shiv', label: '🔱 Shiv Ji', queries: ['Shiva painting', 'Lord Shiva', 'Nataraja', 'Shiva Parvati painting'], subtitle: 'Har Har Mahadev • Om Namah Shivaya' },
-      { id: 'ganesh', label: '🐘 Ganesh Ji', queries: ['Ganesha painting', 'Lord Ganesha', 'Ganesha murti', 'Siddhivinayak'], subtitle: 'Ganpati Bappa Morya • Shubh Labh' },
-      { id: 'krishna', label: '🦚 Krishna Ji', queries: ['Krishna painting', 'Radha Krishna painting', 'Lord Krishna', 'Bala Krishna'], subtitle: 'Jai Shri Krishna • Radhe Radhe' },
-      { id: 'guru', label: '☬ Waheguru Ji', queries: ['Guru Nanak painting', 'Golden Temple Amritsar', 'Harmandir Sahib', 'Guru Gobind Singh'], subtitle: 'Satnam Sri Waheguru Ji' },
-      { id: 'surya', label: '☀️ Morning Blessings', queries: ['Surya deity', 'Hindu temple sunrise', 'Diya lamp festival', 'Lotus temple India'], subtitle: 'Suprabhat • Have a Blessed Day' }
+      {
+        id: 'today',
+        label: "✨ Today's Special",
+        queries: [],
+        wmCategories: [],
+        subtitle: 'Subh Prabhat • God Bless You'
+      },
+      {
+        id: 'hanuman',
+        label: '🚩 Hanuman Ji',
+        queries: ['Hanuman', 'Panchamukhi Hanuman', 'Anjaneya'],
+        wmCategories: ['Category:Paintings_of_Hanuman', 'Category:Hanuman'],
+        subtitle: 'Jai Shri Ram • Jai Bajrangbali'
+      },
+      {
+        id: 'mata',
+        label: '🌺 Mata Rani',
+        queries: ['Durga', 'Lakshmi', 'Saraswati', 'Kali'],
+        wmCategories: ['Category:Paintings_of_Durga', 'Category:Paintings_of_Lakshmi'],
+        subtitle: 'Jai Mata Di • Subh Navratri'
+      },
+      {
+        id: 'shiv',
+        label: '🔱 Shiv Ji',
+        queries: ['Shiva', 'Nataraja', 'Shiva Parvati'],
+        wmCategories: ['Category:Paintings_of_Shiva', 'Category:Shiva'],
+        subtitle: 'Har Har Mahadev • Om Namah Shivaya'
+      },
+      {
+        id: 'ganesh',
+        label: '🐘 Ganesh Ji',
+        queries: ['Ganesha', 'Siddhivinayak', 'Ganapati'],
+        wmCategories: ['Category:Paintings_of_Ganesha', 'Category:Ganesha'],
+        subtitle: 'Ganpati Bappa Morya • Shubh Labh'
+      },
+      {
+        id: 'krishna',
+        label: '🦚 Krishna Ji',
+        queries: ['Krishna', 'Radha Krishna', 'Bala Krishna'],
+        wmCategories: ['Category:Paintings_of_Krishna', 'Category:Radha_Krishna'],
+        subtitle: 'Jai Shri Krishna • Radhe Radhe'
+      },
+      {
+        id: 'guru',
+        label: '☬ Waheguru Ji',
+        queries: ['Guru Nanak', 'Harmandir Sahib', 'Golden Temple Amritsar'],
+        wmCategories: ['Category:Paintings_of_Guru_Nanak', 'Category:Harmandir_Sahib'],
+        subtitle: 'Satnam Sri Waheguru Ji'
+      },
+      {
+        id: 'surya',
+        label: '☀️ Morning Blessings',
+        queries: ['Surya', 'Diwali diya', 'Hindu temple sunrise'],
+        wmCategories: ['Category:Surya', 'Category:Diwali'],
+        subtitle: 'Suprabhat • Have a Blessed Day'
+      }
     ];
 
     const DAY_MAP = {
@@ -227,9 +275,7 @@
         state.subtitle = localStorage.getItem('bhakti_subtitle') || '';
         state.avatarDataUrl = localStorage.getItem('bhakti_avatar') || '';
         state.pixabayKey = localStorage.getItem('bhakti_pixabay_key') || '';
-      } catch (e) {
-        console.warn('localStorage unavailable', e);
-      }
+      } catch (e) {}
     }
 
     function applyUrlParameters() {
@@ -238,11 +284,11 @@
       const urlSub = params.get('subtitle');
       if (urlName) {
         state.name = urlName.trim();
-        localStorage.setItem('bhakti_name', state.name);
+        try { localStorage.setItem('bhakti_name', state.name); } catch (e) {}
       }
       if (urlSub) {
         state.subtitle = urlSub.trim();
-        localStorage.setItem('bhakti_subtitle', state.subtitle);
+        try { localStorage.setItem('bhakti_subtitle', state.subtitle); } catch (e) {}
       }
     }
 
@@ -313,7 +359,6 @@
       reader.onload = function(e) {
         const img = new Image();
         img.onload = function() {
-          // Compress circular avatar to 320x320 JPEG for fast localStorage persistence
           const canvas = document.createElement('canvas');
           const size = 320;
           canvas.width = size;
@@ -380,6 +425,7 @@
         btn.onclick = () => {
           state.activeCategory = cat.id;
           state.customSearchQuery = '';
+          state.pageOffset = 0;
           document.getElementById('searchInput').value = '';
           renderCategoryBar();
           fetchPhotos(true);
@@ -393,6 +439,7 @@
       const q = document.getElementById('searchInput').value.trim();
       if (!q) return;
       state.customSearchQuery = q;
+      state.pageOffset = 0;
       renderCategoryBar();
       fetchPhotos(true);
     }
@@ -408,7 +455,7 @@
     }
 
     // ==========================================
-    // 4. LIVE INTERNET IMAGE SEARCH (CORS-SAFE)
+    // 4. LIVE INTERNET IMAGE SEARCH (MULTI-SOURCE)
     // ==========================================
     function showBanner(msg) {
       const el = document.getElementById('statusBanner');
@@ -425,48 +472,65 @@
       if (reset) {
         state.photos = [];
         container.innerHTML = '';
-        showBanner('Searching fresh devotional artwork...');
+        showBanner('Loading fresh devotional artwork...');
       } else {
         showBanner('Loading more photos...');
       }
 
       const catObj = getActiveCategoryObj();
       const queryList = state.customSearchQuery
-        ? [state.customSearchQuery, `${state.customSearchQuery} Hindu`, `${state.customSearchQuery} painting`]
+        ? [state.customSearchQuery, `${state.customSearchQuery} Hindu`]
         : catObj.queries;
 
       let fetched = [];
 
-      // Try Pixabay first if user configured a key
+      // Source 1: Optional Pixabay API key
       if (state.pixabayKey) {
         try {
-          const pxResults = await queryPixabay(queryList[0], Math.floor(state.pageOffset / 6) + 1);
-          fetched = fetched.concat(pxResults);
-        } catch (err) {
-          console.warn('Pixabay fetch skipped:', err);
+          const px = await queryPixabay(queryList[0], Math.floor(state.pageOffset / 6) + 1);
+          fetched = fetched.concat(px);
+        } catch (err) {}
+      }
+
+      // Source 2: Curated Wikimedia Commons Category Members (clean paintings & temple photos)
+      if (!state.customSearchQuery && catObj.wmCategories) {
+        for (const wmCat of catObj.wmCategories) {
+          if (fetched.length >= 6) break;
+          try {
+            const catItems = await queryWikimediaCategory(wmCat);
+            // Rotate slice by pageOffset so Refresh / Load More shows fresh items
+            const sliced = rotateAndSlice(catItems, state.pageOffset, 6);
+            sliced.forEach(item => {
+              if (!fetched.some(x => x.url === item.url)) fetched.push(item);
+            });
+          } catch (err) {}
         }
       }
 
-      // Query Wikimedia Commons across fallback search terms until we get at least 6 valid images
+      // Source 3: Wikimedia Commons Search API (for custom search or extra items)
       for (let i = 0; i < queryList.length && fetched.length < 6; i++) {
         try {
-          const offset = i === 0 ? state.pageOffset : 0;
-          const wmResults = await queryWikimedia(queryList[i], offset);
-          // Deduplicate by URL
-          wmResults.forEach(item => {
-            if (!fetched.some(existing => existing.url === item.url)) {
-              fetched.push(item);
-            }
+          const wmSearch = await queryWikimediaSearch(queryList[i], state.pageOffset);
+          wmSearch.forEach(item => {
+            if (!fetched.some(x => x.url === item.url)) fetched.push(item);
           });
-        } catch (err) {
-          console.warn('Wikimedia query failed for:', queryList[i], err);
-        }
+        } catch (err) {}
       }
 
-      // Guaranteed Offline/Fallback Artistic Cards if network blocks external APIs
+      // Source 4: Wikipedia PageImages API (ultra-fast fallback)
+      if (fetched.length < 4) {
+        try {
+          const wpItems = await queryWikipediaImages(queryList[0]);
+          wpItems.forEach(item => {
+            if (!fetched.some(x => x.url === item.url)) fetched.push(item);
+          });
+        } catch (err) {}
+      }
+
+      // Source 5: Guaranteed built-in devotional cards so feed is NEVER blank
       if (fetched.length === 0 && reset) {
         fetched = buildFallbackTemplates(catObj);
-        showBanner('Showing built-in devotional cards (check internet connection for more).');
+        showBanner('Showing built-in devotional cards.');
       } else {
         hideBanner();
       }
@@ -478,49 +542,107 @@
       });
     }
 
-    async function queryWikimedia(searchTerm, offset = 0) {
+    function rotateAndSlice(arr, offset, count) {
+      if (!arr.length) return [];
+      const start = offset % arr.length;
+      const rotated = arr.slice(start).concat(arr.slice(0, start));
+      return rotated.slice(0, count);
+    }
+
+    async function queryWikimediaCategory(categoryTitle) {
+      const endpoint = new URL('https://commons.wikimedia.org/w/api.php');
+      endpoint.searchParams.set('action', 'query');
+      endpoint.searchParams.set('format', 'json');
+      endpoint.searchParams.set('origin', '*');
+      endpoint.searchParams.set('generator', 'categorymembers');
+      endpoint.searchParams.set('gcmtitle', categoryTitle);
+      endpoint.searchParams.set('gcmtype', 'file');
+      endpoint.searchParams.set('gcmlimit', '24');
+      endpoint.searchParams.set('prop', 'imageinfo');
+      endpoint.searchParams.set('iiprop', 'url|size|mime');
+      endpoint.searchParams.set('iiurlwidth', '800');
+
+      const res = await fetch(endpoint.toString());
+      if (!res.ok) return [];
+      const data = await res.json();
+      return parseWikimediaPages(data, categoryTitle.replace('Category:', '').replace(/_/g, ' '));
+    }
+
+    async function queryWikimediaSearch(searchTerm, offset = 0) {
       const endpoint = new URL('https://commons.wikimedia.org/w/api.php');
       endpoint.searchParams.set('action', 'query');
       endpoint.searchParams.set('format', 'json');
       endpoint.searchParams.set('origin', '*');
       endpoint.searchParams.set('generator', 'search');
-      endpoint.searchParams.set('gsrnamespace', '6'); // File namespace
-      endpoint.searchParams.set('gsrsearch', `filetype:bitmap ${searchTerm}`);
-      endpoint.searchParams.set('gsrlimit', '12');
+      endpoint.searchParams.set('gsrnamespace', '6');
+      endpoint.searchParams.set('gsrsearch', searchTerm);
+      endpoint.searchParams.set('gsrlimit', '15');
       endpoint.searchParams.set('gsroffset', String(offset));
       endpoint.searchParams.set('prop', 'imageinfo');
       endpoint.searchParams.set('iiprop', 'url|size|mime');
-      endpoint.searchParams.set('iiurlwidth', '900');
+      endpoint.searchParams.set('iiurlwidth', '800');
 
       const res = await fetch(endpoint.toString());
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      if (!res.ok) return [];
       const data = await res.json();
-      if (!data.query || !data.query.pages) return [];
+      return parseWikimediaPages(data, searchTerm);
+    }
 
-      const results = [];
+    function parseWikimediaPages(data, defaultLabel) {
+      if (!data.query || !data.query.pages) return [];
+      const out = [];
       Object.values(data.query.pages).forEach(page => {
         const info = page.imageinfo && page.imageinfo[0];
         if (!info) return;
         const mime = (info.mime || '').toLowerCase();
         if (!mime.includes('jpeg') && !mime.includes('jpg') && !mime.includes('png') && !mime.includes('webp')) return;
-        if (info.width < 350 || info.height < 350) return;
+        if ((info.width || 0) < 250 || (info.height || 0) < 250) return;
 
-        // Clean readable title
         const cleanTitle = (page.title || '')
           .replace(/^File:/i, '')
           .replace(/\.[^.]+$/, '')
           .replace(/[_-]+/g, ' ')
-          .slice(0, 42);
+          .slice(0, 40);
 
-        results.push({
+        out.push({
           url: info.thumburl || info.url,
-          title: cleanTitle || searchTerm,
+          fallbackUrl: info.url,
+          title: cleanTitle || defaultLabel,
           source: 'Wikimedia',
           isFallback: false
         });
       });
+      return out;
+    }
 
-      return results.slice(0, 6);
+    async function queryWikipediaImages(searchTerm) {
+      const endpoint = new URL('https://en.wikipedia.org/w/api.php');
+      endpoint.searchParams.set('action', 'query');
+      endpoint.searchParams.set('format', 'json');
+      endpoint.searchParams.set('origin', '*');
+      endpoint.searchParams.set('generator', 'search');
+      endpoint.searchParams.set('gsrsearch', searchTerm);
+      endpoint.searchParams.set('gsrlimit', '10');
+      endpoint.searchParams.set('prop', 'pageimages');
+      endpoint.searchParams.set('piprop', 'thumbnail');
+      endpoint.searchParams.set('pithumbsize', '800');
+
+      const res = await fetch(endpoint.toString());
+      if (!res.ok) return [];
+      const data = await res.json();
+      if (!data.query || !data.query.pages) return [];
+      const out = [];
+      Object.values(data.query.pages).forEach(page => {
+        if (page.thumbnail && page.thumbnail.source) {
+          out.push({
+            url: page.thumbnail.source,
+            title: page.title || searchTerm,
+            source: 'Wikipedia',
+            isFallback: false
+          });
+        }
+      });
+      return out.slice(0, 6);
     }
 
     async function queryPixabay(searchTerm, page = 1) {
@@ -533,7 +655,7 @@
       endpoint.searchParams.set('page', String(page));
 
       const res = await fetch(endpoint.toString());
-      if (!res.ok) throw new Error(`Pixabay HTTP ${res.status}`);
+      if (!res.ok) return [];
       const data = await res.json();
       return (data.hits || []).map(hit => ({
         url: hit.largeImageURL || hit.webformatURL,
@@ -614,23 +736,15 @@
       const W = canvas.width;
       const H = canvas.height;
 
-      // Base warm background while image loads
-      const bgGrad = ctx.createLinearGradient(0, 0, 0, H);
-      bgGrad.addColorStop(0, '#7c2d12');
-      bgGrad.addColorStop(1, '#290d04');
-      ctx.fillStyle = bgGrad;
-      ctx.fillRect(0, 0, W, H);
+      // Render immediate artistic base so card is never blank while remote image loads
+      drawFallbackArtwork(ctx, W, H, photo.palette || { top: '#7c2d12', mid: '#b45309', bot: '#290d04', symbol: '🕉️' });
+      drawOverlayFrameAndStamp(ctx, W, H);
 
-      if (photo.isFallback) {
-        drawFallbackArtwork(ctx, W, H, photo.palette);
-        drawOverlayFrameAndStamp(ctx, W, H);
-        return;
-      }
+      if (photo.isFallback || !photo.url) return;
 
       const img = new Image();
       img.crossOrigin = 'anonymous';
       img.onload = () => {
-        // Center-crop image to 9:16
         const targetRatio = W / H;
         const imgRatio = img.width / img.height;
         let sx = 0, sy = 0, sw = img.width, sh = img.height;
@@ -647,9 +761,9 @@
         drawOverlayFrameAndStamp(ctx, W, H);
       };
       img.onerror = () => {
-        // If CORS blocks an individual image, draw rich fallback artwork instead of blank box
-        drawFallbackArtwork(ctx, W, H, { top: '#7c2d12', mid: '#b45309', bot: '#451a03', symbol: '🪔', title: photo.title });
-        drawOverlayFrameAndStamp(ctx, W, H);
+        if (photo.fallbackUrl && img.src !== photo.fallbackUrl) {
+          img.src = photo.fallbackUrl;
+        }
       };
       img.src = photo.url;
     }
@@ -662,7 +776,6 @@
       ctx.fillStyle = grad;
       ctx.fillRect(0, 0, W, H);
 
-      // Decorative radiant halo
       const radial = ctx.createRadialGradient(W / 2, H * 0.38, 40, W / 2, H * 0.38, 460);
       radial.addColorStop(0, 'rgba(253, 224, 71, 0.45)');
       radial.addColorStop(1, 'rgba(253, 224, 71, 0)');
@@ -676,7 +789,6 @@
     }
 
     function drawOverlayFrameAndStamp(ctx, W, H) {
-      // Top & bottom protective gradient vignettes for crisp text legibility
       const topGrad = ctx.createLinearGradient(0, 0, 0, 320);
       topGrad.addColorStop(0, 'rgba(0, 0, 0, 0.65)');
       topGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
@@ -690,7 +802,6 @@
       ctx.fillStyle = botGrad;
       ctx.fillRect(0, H - 620, W, 620);
 
-      // Double Golden Temple Border
       ctx.strokeStyle = '#fbbf24';
       ctx.lineWidth = 10;
       ctx.strokeRect(36, 36, W - 72, H - 72);
@@ -699,7 +810,6 @@
       ctx.lineWidth = 3;
       ctx.strokeRect(54, 54, W - 108, H - 108);
 
-      // Top Blessing Banner
       const blessingText = state.subtitle || getActiveCategoryObj().subtitle;
       ctx.fillStyle = '#fde68a';
       ctx.font = '700 44px Cinzel, serif';
@@ -709,13 +819,11 @@
       ctx.fillText(blessingText, W / 2, 135);
       ctx.shadowBlur = 0;
 
-      // Bottom Profile Stamp (Avatar + Name)
       const displayName = state.name || 'Your Name Here';
       const centerX = W / 2;
       const avatarY = H - 320;
       const radius = 115;
 
-      // Golden glow ring behind avatar
       ctx.beginPath();
       ctx.arc(centerX, avatarY, radius + 12, 0, Math.PI * 2);
       ctx.fillStyle = '#f59e0b';
@@ -800,7 +908,6 @@
             text: state.subtitle || '🙏'
           });
         } else {
-          // Desktop fallback: download image directly
           const link = document.createElement('a');
           link.download = fileName;
           link.href = canvas.toDataURL('image/jpeg', 0.92);
@@ -808,15 +915,11 @@
         }
       } catch (err) {
         if (err.name !== 'AbortError') {
-          console.error('Share failed:', err);
           alert('Image downloaded! Open WhatsApp Status and select it from your gallery.');
         }
       }
     }
 
-    // ==========================================
-    // 6. SETTINGS MODAL & HELPERS
-    // ==========================================
     function openSettings() {
       document.getElementById('pixabayKeyInput').value = state.pixabayKey;
       document.getElementById('settingsModal').classList.remove('hidden');
